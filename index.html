@@ -19,16 +19,95 @@
     border-radius: 10px; border: 2px solid #0b4a6b; cursor: crosshair;
     background: #06456b; touch-action: none;
   }
-  p.help { margin: 0; max-width: 1440px; font-size: .9rem; opacity: .8; text-align: center; line-height: 1.5; }
+  p.help { margin: 0; max-width: 1440px; font-size: 1.4rem; opacity: .95; text-align: center; line-height: 1.5; }
+  #intro {
+    position: fixed; inset: 0; z-index: 20; display: none; overflow-y: auto; padding: 20px 16px;
+    background: #02131f; color: var(--fg);
+  }
+  #intro.show { display: block; }
+  #intro .wrap { max-width: 1300px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+  #intro h2 { margin: 0; font-size: 2.2rem; text-align: center; }
+  #intro h2 i { font-size: 1.1rem; font-weight: normal; opacity: .7; }
+  #intro .row { display: flex; flex-wrap: wrap; gap: 26px; align-items: flex-start; justify-content: center; }
+  #intro .pic { flex: 1 1 420px; max-width: 640px; }
+  #intro img { width: 100%; border-radius: 12px; border: 2px solid #1b5a7e; display: block; }
+  #intro .text { flex: 1 1 420px; max-width: 620px; text-align: left; }
+  #intro h3 { margin: 0 0 6px; font-size: 1.3rem; color: #ffd966; }
+  #intro h3.why { margin-top: 16px; color: #ff8a7a; }
+  #intro ul { margin: 0; padding-left: 22px; line-height: 1.5; font-size: 1.08rem; }
+  #intro li { margin-bottom: 6px; }
+  #intro p { margin: 0; text-align: center; }
+  #intro .credit { margin-top: 8px; font-size: .78rem; opacity: .6; }
+  #intro .src { font-size: .85rem; opacity: .75; }
+  #intro .tag { display: inline-block; margin-bottom: 10px; padding: 2px 10px; border-radius: 999px; background: #7a1c1c; font-size: .9rem; }
+  #intro .count { font-size: 1.5rem; font-weight: bold; color: #ffb347; }
+  #intro a { color: #8fd3ff; }
+  #intro button {
+    display: none; font: bold 1.2rem system-ui, sans-serif; padding: 10px 28px; border-radius: 10px; border: 0; cursor: pointer;
+    background: #ffb347; color: #1b1200;
+  }
+  #intro button.show { display: inline-block; }
+  #facts {
+    position: fixed; inset: 0; z-index: 10; overflow-y: auto; display: none;
+    background: rgba(2, 22, 38, .97); color: var(--fg); padding: 28px 16px 120px;
+  }
+  #facts.show { display: block; }
+  #facts .wrap { max-width: 1200px; margin: 0 auto; }
+  #facts h2 { margin: 0 0 6px; font-size: 2.2rem; text-align: center; }
+  #facts .lead { margin: 0 auto 26px; max-width: 760px; text-align: center; font-size: 1.15rem; opacity: .85; line-height: 1.5; }
+  #facts .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px; }
+  #facts .grid.one { grid-template-columns: minmax(340px, 560px); justify-content: center; }
+  #facts .card { background: #0b2f48; border: 1px solid #1b5a7e; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
+  #facts .card img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; display: block; background: #000; }
+  #facts .body { padding: 14px 18px 16px; }
+  #facts h3 { margin: 0; font-size: 1.4rem; }
+  #facts .sci { margin: 2px 0 8px; font-style: italic; opacity: .7; }
+  #facts .tag { display: inline-block; margin-bottom: 8px; padding: 2px 10px; border-radius: 999px; background: #7a1c1c; font-size: .85rem; }
+  #facts ul { margin: 0; padding-left: 20px; line-height: 1.5; font-size: 1.02rem; }
+  #facts li { margin-bottom: 6px; }
+  #facts .credit { margin-top: 10px; font-size: .78rem; opacity: .65; }
+  #facts a { color: #8fd3ff; }
+  #facts .sources { margin: 28px auto 0; max-width: 900px; font-size: .9rem; opacity: .8; line-height: 1.6; }
+  #facts .bar { position: fixed; left: 0; right: 0; bottom: 0; padding: 14px; text-align: center; background: linear-gradient(transparent, #021626 40%); }
+  #facts button {
+    font: bold 1.3rem system-ui, sans-serif; padding: 12px 34px; border-radius: 10px; border: 0; cursor: pointer;
+    background: #ffb347; color: #1b1200;
+  }
 </style>
 </head>
 <body>
-<h1>🤿 Reef Defender</h1>
+<h1 id="heading">🤿 Reef Defender</h1>
 <canvas id="game" width="1440" height="900"></canvas>
-<p class="help">
+<p class="help" id="help">
   <b>Move</b> WASD / arrows · <b>Harpoon</b> H to equip, then click or Space (aims at the cursor) · <b>Net</b> E to deploy, Z to sweep it · <b>Air</b> swim to the surface to refill.<br>
   Spear invasive lionfish, green crabs, crown-of-thorns starfish and creeping algae; zebra mussels have hard shells, so net them before they kill the reef. Spare the native fish!
 </p>
+
+<div id="intro" role="dialog" aria-label="Invasive species">
+  <div class="wrap">
+    <h2><span id="intro-name"></span> <i id="intro-sci"></i></h2>
+    <div class="row">
+      <div class="pic">
+        <img id="intro-img" alt="">
+        <p class="credit" id="intro-credit"></p>
+      </div>
+      <div class="text" id="intro-text"></div>
+    </div>
+    <p class="src" id="intro-src"></p>
+    <p class="count">Game starts in <span id="intro-count">30</span> seconds</p>
+    <p><button id="intro-skip">Skip</button></p>
+  </div>
+</div>
+
+<div id="facts" role="dialog" aria-label="Meet the invasive species">
+  <div class="wrap">
+    <h2 id="facts-title"></h2>
+    <p class="lead" id="facts-lead"></p>
+    <div class="grid" id="facts-grid"></div>
+    <p class="sources" id="facts-sources"></p>
+  </div>
+  <div class="bar"><button id="facts-continue">Continue to Level 2 (Enter)</button></div>
+</div>
 
 <script>
 (() => {
@@ -39,9 +118,11 @@
   const NET_R = 130, NET_DIST = 130;
   canvas.width = W; canvas.height = H;
   const SURFACE = 50, FLOOR = H - 60;
-  const REEF_START = 120;      // the reef's clock, in seconds
+  const REEF_START = 600;      // the reef's clock, in seconds
+  const WIN_SCORES = { 1: 1000, 2: 1000 };   // points needed to win each level
+  const winScore = () => WIN_SCORES[level];
   const KILL_BONUS = 10;       // seconds added per invasive removed
-  const REEF_DURABILITY = 2;   // reef damage is divided by this
+  const REEF_DURABILITY = 3;   // reef damage is divided by this
 
   // ---------- input ----------
   const keys = {};
@@ -49,7 +130,7 @@
   addEventListener('keydown', e => {
     keys[e.code] = true;
     if (e.code === 'Space') { e.preventDefault(); if (state === 'playing') fire(); else startIfIdle(); }
-    if (e.code === 'Enter') startIfIdle();
+    if (e.code === 'Enter') { if (state === 'facts') continueToLevel2(); else startIfIdle(); }
     if (e.code === 'KeyE' && !e.repeat && state === 'playing') { net.on = !net.on; if (net.on) harpoon = false; }   // one tool in hand at a time
     if (e.code === 'KeyH' && !e.repeat && state === 'playing') { harpoon = !harpoon; if (harpoon) net.on = false; }
     if (e.code === 'KeyZ' && !e.repeat && state === 'playing') useNet();
@@ -80,17 +161,228 @@
   const rand = (a, b) => a + Math.random() * (b - a);
   const wave = () => 1 + Math.floor(kills / 12);
 
+  // level 1 is the reef, level 2 is the same game on land with invasive plants
+  let level = 1;
+  const THEMES = {
+    1: { heading: '🤿 Reef Defender', title: 'Reef Defender', gas: 'AIR', clock: 'REEF', place: 'reef', gun: 'harpoon', bag: 'net',
+         natives: 'Native fish', hard: 'Too hard - use the net!', outAir: 'Out of air!', dead: 'Time ran out - the reef has died.',
+         win: 'You removed enough invaders to save the reef!', winTitle: 'Reef saved!', lose: 'Dive over', removed: 'Invasives removed',
+         tools: ['Harpoon [H]: equipped', 'Net [E]: ready - Z to catch', 'Nothing equipped - H harpoon, E net'],
+         help: `<b>Move</b> WASD / arrows · <b>Harpoon</b> H to equip, then click or Space (aims at the cursor) · <b>Net</b> E to deploy, Z to sweep it · <b>Air</b> swim to the surface to refill.<br>
+  Spear invasive lionfish, green crabs, crown-of-thorns starfish and creeping algae; zebra mussels have hard shells, so net them before they kill the reef. Spare the native fish!` },
+    2: { heading: '🌿 Meadow Defender - Level 2', title: 'Meadow Defender', gas: 'FUEL', clock: 'MEADOW', place: 'meadow', gun: 'dart launcher', bag: 'sack',
+         natives: 'Pollinator', hard: "Darts can't kill burrs - use the sack!", outAir: 'Out of jetpack fuel!', dead: 'Time ran out - the meadow has withered.',
+         win: 'You cleared the invasive plants and saved the meadow!', winTitle: 'Meadow saved!', lose: 'Mission over', removed: 'Invasive plants removed',
+         tools: ['Dart launcher [H]: equipped', 'Sack [E]: ready - Z to bag burrs', 'Nothing equipped - H darts, E sack'],
+         help: `<b>Move</b> WASD / arrows (jetpack) · <b>Dart launcher</b> H to equip, then click or Space (aims at the cursor) · <b>Sack</b> E to open, Z to bag burrs · <b>Fuel</b> land near the ground to refuel.<br>
+  Dart invasive thistles, creeping vines, giant hogweed and kudzu; burdock burrs shrug off darts, so bag them before the meadow withers. Spare the bees, butterflies and other pollinators!` }
+  };
+  const T = () => THEMES[level];
+  function setHelp() {
+    document.getElementById('heading').textContent = T().heading;
+    document.getElementById('help').innerHTML = T().help;
+    document.title = T().title;
+  }
+
+  // ---------- the "meet the invaders" screen shown after winning level 1 ----------
+  const LIONFISH_INTRO = {
+    facts: ['It is native to the Indo-Pacific, but now lives along the southeast U.S. coast, the Caribbean and the Gulf of Mexico.',
+            'Its spines are venomous and can be very painful.',
+            'It is a carnivore that eats small fish and crustaceans, including young snapper and grouper.',
+            'Lionfish were first spotted off Florida in the mid-1980s.'],
+    why: ['<b>It does not belong there.</b> It reached the Atlantic when people dumped unwanted aquarium fish, probably for more than 25 years.',
+          '<b>Nothing keeps it in check.</b> Adults have very few predators outside their home range.',
+          '<b>It wipes out young native fish.</b> NOAA cites research where a single lionfish on a reef cut recruitment of native reef fish by 79%.',
+          '<b>It hurts fisheries and reefs.</b> It eats the same young fish that snapper and grouper eat, and it eats algae-grazers, so algae can overgrow reefs.',
+          '<b>It can reach nearshore habitats.</b> It tolerates brackish water, so mangroves and estuaries may be at risk.'],
+    sources: [['NOAA Ocean Service', 'https://oceanservice.noaa.gov/facts/lionfish.html'],
+              ['NOAA Fisheries: impacts of invasive lionfish', 'https://www.fisheries.noaa.gov/southeast/ecosystems/impacts-invasive-lionfish']]
+  };
+  const REEF_FACTS = [
+    { img: 'red-lionfish.jpg', intro: LIONFISH_INTRO, name: 'Red lionfish', sci: 'Pterois volitans', game: 'The striped fish with the venomous spines',
+      credit: ['Jens Petersen (edited by Olegiwit and Fir0002)', 'CC BY 2.5', 'https://commons.wikimedia.org/wiki/File:Pterois_volitans_Manado-e_edit.jpg'],
+      facts: ['Spread from the aquarium trade in the 1980s. It is now established from North Carolina to South America, including the Gulf of Mexico.',
+              'It eats native fish and crustaceans in large numbers, competing with snapper and grouper fisheries and permanently reshaping reef fish communities.',
+              'In many places there are now more lionfish than some native reef fish. A NOAA ecologist has called it possibly "one of the greatest threats of this century to tropical Atlantic reefs".'] },
+    { img: 'carcinus-maenas.jpg', name: 'European green crab', sci: 'Carcinus maenas', game: 'The green crab walking the seabed',
+      credit: ['Hans Hillewaert', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Carcinus_maenas.jpg'],
+      facts: ['Officials in Maine call it the biggest threat in decades to the state\'s soft-shell clam industry, worth about $15.6 million.',
+              'It uproots eelgrass while foraging, and its burrowing makes salt marsh banks erode more easily.',
+              'A 2007 estimate put East Coast losses to shellfisheries and eelgrass restoration at $18.6 to $22.6 million a year. In California\'s Tomales Bay, one study found up to a 40% drop in the Manila clam harvest.'] },
+    { img: 'crown-of-thorns-starfish.jpg', name: 'Crown-of-thorns starfish', sci: 'Acanthaster planci', game: 'The spiny purple starfish that takes 3 hits',
+      credit: ['John Hepburn', 'CC BY 4.0', 'https://commons.wikimedia.org/wiki/File:Acanthaster_planci_460468243_(closeup).jpg'],
+      facts: ['Strictly a native of the Indo-Pacific, but its population outbreaks wreck reefs like an invasion.',
+              'On the Great Barrier Reef, outbreaks caused about 42% of coral loss between 1985 and 2012 (cyclones 48%, bleaching 10%). Coral cover fell from 28% to under 14%.',
+              'Outbreaks are believed to have gone from once every 50 to 80 years to about once every 15 years, partly linked to fertiliser runoff.'] },
+    { img: 'caulerpa-taxifolia.jpg', name: 'Killer algae', sci: 'Caulerpa taxifolia', game: 'The creeping, spreading algae',
+      credit: ['Krzysztof Ziarnek, Kenraiz', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Caulerpa_taxifolia_kz01.jpg'],
+      facts: ['Accidentally released into the Mediterranean in 1984, with aquarium waste from a museum in Monaco.',
+              'Its dense meadows can cover up to 100% of the seabed and push out native seagrasses such as Posidonia. It also makes toxic compounds.',
+              'Fish that eat it, like the salema bream, build up toxins in their flesh. One review reports 25 to 55% fewer native algae species on invaded rock.'] },
+    { img: 'zebra-mussel.jpg', name: 'Zebra mussel', sci: 'Dreissena polymorpha', game: 'The striped shells you have to net',
+      credit: ['Smithsonian Environmental Research Center', 'CC BY 2.0', 'https://commons.wikimedia.org/wiki/File:Dreissena_polymorpha_(I1957)_0265_(39449820624).jpg'],
+      facts: ['Damage and control costs in the US and Canada are estimated at around $140 million a year, and some sources put Great Lakes damage to power plants and water intakes at $100 to $500 million a year.',
+              'They filter huge amounts of water and can smother native freshwater mussels so heavily that the natives cannot feed or move.',
+              'They build up contaminants such as PCBs and heavy metals, which can move up the food chain.'] }
+  ];
+  const REEF_SOURCES = [
+    ['NOAA Fisheries: impacts of invasive lionfish', 'https://www.fisheries.noaa.gov/southeast/ecosystems/impacts-invasive-lionfish'],
+    ['NOAA Ocean Service: lionfish', 'https://oceanservice.noaa.gov/facts/lionfish.html'],
+    ['Manomet: Nursery of the Sea (green crabs and clams)', 'https://www.manomet.org/publication/nursery-of-the-sea/'],
+    ['Casco Bay Estuary Partnership: green crab factsheet', 'https://www.cascobayestuary.org/wp-content/uploads/2021/01/2013-CBEP-Factsheet-Green-Crabs-for-web.pdf'],
+    ['Great Barrier Reef Marine Park Authority: crown-of-thorns outbreaks', 'https://outlookreport.gbrmpa.gov.au/values/3-ecosystem-health/36-outbreaks-disease-introduced-species-and-pest-species/362-outbreaks-crown-thorns-starfish'],
+    ['Mongabay: Great Barrier Reef coral loss (AIMS study)', 'https://news.mongabay.com/2012/10/great-barrier-reef-loses-half-its-coral-in-less-than-30-years'],
+    ['IUCN Global Invasive Species Database: Caulerpa taxifolia', 'https://iucngisd.org/gisd/species.php?sc=115'],
+    ['Penn State Sea Grant: zebra and quagga mussels', 'https://seagrant.psu.edu/zebra-and-quagga-mussels/'],
+    ['Wisconsin DNR: zebra mussel', 'https://dnr.wisconsin.gov/sites/default/files/topic/Invasives/LR_Dreissena_polymorpha.pdf']
+  ];
+
+  // level 2 preview: invasive plants that began as garden plants
+  const PLANT_FACTS = [
+    { img: 'heracleum-mantegazzianum.jpg', name: 'Giant hogweed', sci: 'Heracleum mantegazzianum', game: 'the tall white-flowered hogweed that takes 3 hits',
+      credit: ['Lucas Kendall', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Giant_hogweed_in_Dunnyduff_Woods,_Keith.jpg'],
+      facts: ['Native to the Caucasus. It was brought to Europe and North America as a garden ornamental, partly because it looks like Queen Anne\'s lace.',
+              'Plants reach 10 to 15 feet and shade out smaller native plants. On riverbanks the stands die back in winter and leave bare soil that erodes easily.',
+              'Its sap makes skin very sensitive to sunlight, causing severe burns and blisters. Purplish scars can last for years. Reports of blindness from eye contact are disputed.'] },
+    { img: 'kudzu.jpg', name: 'Kudzu', sci: 'Pueraria montana var. lobata', game: 'the spreading kudzu patches',
+      credit: ['Scott Ehardt', 'Public domain', 'https://commons.wikimedia.org/wiki/File:Kudzu_on_trees_in_Atlanta,_Georgia.jpg'],
+      facts: ['First brought to the U.S. in 1876 and sold as an ornamental vine to shade porches. Later, farmers were encouraged to plant it against soil erosion: about 85 million plants were given out, and by 1946 an estimated 300,000 acres were planted.',
+              'It can grow about a foot a day, with vines up to 100 feet long. It spreads by runners, underground stems and vines that root where they touch the ground.',
+              'It is now a problem in all southeastern states and in almost every habitat except water, blanketing trees and shrubs as in this photo.'] },
+    { img: 'hedera-helix.jpg', name: 'English ivy', sci: 'Hedera helix', game: 'the creeping vine runners',
+      credit: ['kallerna', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Hedera_helix_Dover.jpg'],
+      facts: ['Native to Europe and long sold as a garden plant. It is now one of the most destructive invasive plants in Pacific Northwest forests, from British Columbia to California.',
+              'It is aggressive and tolerates shade, and birds spread its seeds by eating the black berries.',
+              'It climbs and encircles tree trunks, adding weight and making trees more prone to disease and blowdown. On the ground it forms dense mats, leaving some city forests with nothing but ivy underneath.'] },
+    { img: 'lythrum-salicaria.jpg', name: 'Purple loosestrife', sci: 'Lythrum salicaria', game: 'the purple-tufted seeds that fly in',
+      credit: ['Ivar Leidus', 'CC BY-SA 3.0', 'https://commons.wikimedia.org/wiki/File:Lythrum_salicaria_-_harilik_kukesaba.jpg'],
+      facts: ['A Eurasian perennial brought to North America as a garden plant. It is now a serious wetland invader.',
+              'Estimates run as high as 2 to 3 million seeds per plant per year (another source says 300,000 per stalk). Seeds travel by water, wind, waterfowl and animals.',
+              'It forms dense single-species stands that crowd out native plants and the food and cover wildlife need. "Sterile" garden varieties have been shown to produce viable seed, and selling it is illegal in some states, such as Wisconsin.'] },
+    { img: 'reynoutria-japonica.jpg', name: 'Japanese knotweed', sci: 'Reynoutria japonica', game: 'fast-spreading plants that overrun the meadow',
+      credit: ['W.carter', 'CC0', 'https://commons.wikimedia.org/wiki/File:Reynoutria_japonica_in_Brastad_1.jpg'],
+      facts: ['Sold by nurseries in Britain from 1854 as a fast-growing ornamental, and naturalised in the wild by 1886.',
+              'A new plant can grow from a fragment as small as 1 centimetre, so digging it up can make things worse.',
+              'It damages buildings and reduces the capacity of channels and flood defences. A 2013 estimate put the cost to the UK economy at about £165 million a year, and treatment can take up to three years.'] }
+  ];
+  const PLANT_SOURCES = [
+    ['Invasive Species Centre: giant hogweed', 'https://invasivespeciescentre.ca/invasive-species/meet-the-species/invasive-plants/giant-hogweed/'],
+    ['Washington State Noxious Weed Control Board: giant hogweed', 'https://www.nwcb.wa.gov/images/weeds/GiantHogweed_Whatcom.pdf'],
+    ['Nova Scotia: giant hogweed facts', 'https://naturalhistory.novascotia.ca/sites/default/files/inline/images/hogweedfacts.pdf'],
+    ['Mississippi State Extension: kudzu', 'https://extension.msstate.edu/publications/kudzu'],
+    ['Alabama Extension: history and use of kudzu', 'https://www.aces.edu/blog/topics/forestry-wildlife/the-history-and-use-of-kudzu-in-the-southeastern-united'],
+    ['USDA Forest Service via Bugwood: kudzu', 'https://www.invasive.org/biocontrol/25Kudzu.html'],
+    ['Oregon State Extension: English ivy', 'https://extension.oregonstate.edu/node/82101'],
+    ['Washington State Noxious Weed Control Board: English ivy', 'https://www.nwcb.wa.gov/images/weeds/Hedera.pdf'],
+    ['Vermont Invasives: purple loosestrife', 'https://vtinvasives.org/node/128'],
+    ['University of Wisconsin Extension: purple loosestrife', 'https://hort.extension.wisc.edu/files/2014/11/Purple-Loosestrife.pdf'],
+    ['Missouri Department of Conservation: purple loosestrife', 'https://mdc.mo.gov/discover-nature/field-guide/purple-loosestrife'],
+    ['Phlorum: Japanese knotweed cost to the UK', 'https://www.phlorum.com/blog/2013/10/08/japanese-knotweed-costs-british-economy-165m-year/']
+  ];
+
+  const FACT_SETS = {
+    reef: { title: 'Level 1 complete: meet the invaders', tagLabel: 'In the game', items: REEF_FACTS, sources: REEF_SOURCES,
+            lead: 'These are the real species behind the ones you just cleared, and what they do to the ecosystems they invade.',
+            note: 'Cost and loss figures are estimates from these organisations and studies. Some are several years old and the studies measure different things.',
+            button: 'Next: invaders from the garden (Enter)' },
+    plants: { title: 'Level 2: invaders from the garden', tagLabel: 'Like the game\'s', items: PLANT_FACTS, sources: PLANT_SOURCES,
+              lead: 'Level 2 is on land. Many of the worst invasive plants started out as garden plants and then escaped. Here are some of them.',
+              note: 'Seed counts, costs and spread rates are estimates and differ between sources. Some reports are regional or several years old.',
+              button: 'Start Level 2 (Enter)' }
+  };
+  let factsStage = 'reef';
+
+  // after winning level 2: one randomly chosen garden invader, then "Thanks for Playing!"
+  function endSet() {
+    const pick = PLANT_FACTS[Math.floor(Math.random() * PLANT_FACTS.length)];
+    return { title: 'Thanks for Playing!', tagLabel: 'Like the game\'s', items: [pick], sources: PLANT_SOURCES, single: true,
+             lead: 'You saved the reef and the meadow. Here is one invasive garden plant to remember: ' + pick.name + '.',
+             note: 'Seed counts, costs and spread rates are estimates and differ between sources. Some reports are regional or several years old.',
+             button: 'Play again (Enter)' };
+  }
+
+  function showFacts(stage = 'reef') {
+    factsStage = stage;
+    const set = stage === 'end' ? endSet() : FACT_SETS[stage], grid = document.getElementById('facts-grid');
+    grid.classList.toggle('one', !!set.single);
+    document.getElementById('facts-title').textContent = set.title;
+    document.getElementById('facts-lead').textContent = set.lead;
+    document.getElementById('facts-continue').textContent = set.button;
+    grid.innerHTML = '';
+    for (const f of set.items) {
+      const card = document.createElement('div'); card.className = 'card';
+      card.innerHTML = `<img src="images/${f.img}" alt="${f.name}">
+        <div class="body"><h3>${f.name}</h3><p class="sci">${f.sci}</p><span class="tag">${set.tagLabel}: ${f.game}</span>
+        <ul>${f.facts.map(t => `<li>${t}</li>`).join('')}</ul>
+        <p class="credit">Photo: ${f.credit[0]}, <a href="${f.credit[2]}" target="_blank" rel="noopener">${f.credit[1]}</a>, via Wikimedia Commons</p></div>`;
+      grid.appendChild(card);
+    }
+    document.getElementById('facts-sources').innerHTML = '<b>Sources:</b> ' +
+      set.sources.map(([n, u]) => `<a href="${u}" target="_blank" rel="noopener">${n}</a>`).join(' · ') + '<br>' + set.note;
+    const el = document.getElementById('facts');
+    el.classList.add('show'); el.scrollTop = 0;
+  }
+
+  // Enter / the button: reef facts -> garden plant facts -> level 2
+  function continueToLevel2() {
+    if (state !== 'facts') return;
+    if (factsStage === 'reef') { showFacts('plants'); return; }
+    document.getElementById('facts').classList.remove('show');
+    level = factsStage === 'end' ? 1 : 2;      // after the ending, "Play again" restarts from level 1
+    reset(); setHelp(); state = 'playing';
+  }
+  document.getElementById('facts-continue').addEventListener('click', continueToLevel2);
+
+  // a randomly chosen reef invader (picture + facts) shown for 30 seconds before the game can start
+  const INTRO_SECONDS = 30, SKIP_AFTER = 10;
+  let introActive = true;
+  (function runIntro() {
+    const el = document.getElementById('intro'), count = document.getElementById('intro-count'), skip = document.getElementById('intro-skip');
+    const pick = REEF_FACTS[Math.floor(Math.random() * REEF_FACTS.length)];
+    const sections = pick.intro
+      ? [['Facts about the ' + pick.name.toLowerCase(), pick.intro.facts, ''], ['Why it is an invasive species', pick.intro.why, 'why']]
+      : [['Why it is an invasive species', pick.facts, 'why']];
+    document.getElementById('intro-name').textContent = pick.name;
+    document.getElementById('intro-sci').textContent = pick.sci;
+    const img = document.getElementById('intro-img'); img.src = 'images/' + pick.img; img.alt = pick.name;
+    document.getElementById('intro-credit').innerHTML = `Photo: ${pick.credit[0]}, <a href="${pick.credit[2]}" target="_blank" rel="noopener">${pick.credit[1]}</a>, via Wikimedia Commons`;
+    document.getElementById('intro-text').innerHTML = `<span class="tag">In the game: ${pick.game}</span>` +
+      sections.map(([h, items, cls]) => `<h3 class="${cls}">${h}</h3><ul>${items.map(t => `<li>${t}</li>`).join('')}</ul>`).join('');
+    document.getElementById('intro-src').innerHTML = 'Sources: ' +
+      (pick.intro ? pick.intro.sources : REEF_SOURCES).map(([n, u]) => `<a href="${u}" target="_blank" rel="noopener">${n}</a>`).join(' · ');
+    const end = Date.now() + INTRO_SECONDS * 1000;
+    const finish = () => { el.classList.remove('show'); introActive = false; clearInterval(id); };
+    const tick = () => {
+      const left = Math.ceil((end - Date.now()) / 1000);
+      if (left <= 0) { finish(); return; }
+      count.textContent = left;
+      if (INTRO_SECONDS - left >= SKIP_AFTER) skip.classList.add('show');     // skip appears after 10 seconds
+    };
+    skip.addEventListener('click', finish);
+    el.classList.add('show');
+    const id = setInterval(tick, 250);
+    tick();
+  })();
+
   function reset() {
-    diver = { x: W / 2, y: SURFACE + 20, vx: 0, vy: 0, face: 1, kick: 0 };
+    diver = { x: W / 2, y: level === 1 ? SURFACE + 20 : FLOOR - 50, vx: 0, vy: 0, face: 1, kick: 0 };
     spears = []; enemies = []; natives = []; particles = [];
     bubbles = Array.from({ length: 80 }, () => ({ x: rand(0, W), y: rand(0, H), r: rand(1.5, 5), s: rand(10, 35) }));
     score = 0; kills = 0; oxygen = 100; reef = REEF_START; combo = 1; comboTimer = 0;
-    net = { on: false, flash: 0 }; harpoon = true; musselTimer = 7;
+    net = { on: false, flash: 0 }; harpoon = true; won = false; musselTimer = 7;
     spawnTimer = 1.5; nativeTimer = 1; algaeTimer = 5; cooldown = 0; time = 0; shake = 0;
   }
 
   function startIfIdle() {
-    if (state === 'title' || state === 'over') { reset(); state = 'playing'; }
+    if (introActive) return;
+    if (state === 'over' && won) {      // "Reef saved!" / "Meadow saved!" pause, then the facts screens
+      if (performance.now() - winAt > 1200) { state = 'facts'; showFacts(level === 1 ? 'reef' : 'end'); }       // short delay so a frantic click does not skip it
+      return;
+    }
+    if (state === 'title') level = 1;
+    else if (state === 'over' && won) level = level === 1 ? 2 : 1;    // win level 1 -> level 2; win level 2 -> start over
+    else if (state !== 'over') return;
+    reset(); setHelp(); state = 'playing';
   }
 
   // ---------- spawning ----------
@@ -128,7 +420,7 @@
 
   // ---------- actions ----------
   function fire() {
-    if (!harpoon) { if (cooldown <= 0) { cooldown = 0.5; floatText(diver.x, diver.y - 50, 'Press H to equip the harpoon', '#fff'); } return; }
+    if (!harpoon) { if (cooldown <= 0) { cooldown = 0.5; floatText(diver.x, diver.y - 50, 'Press H to equip the ' + T().gun, '#fff'); } return; }
     if (cooldown > 0) return;
     cooldown = 0.35;
     const dx = mouse.x - diver.x, dy = mouse.y - diver.y;
@@ -145,14 +437,14 @@
 
   // Z: sweep everything in the deployed net; only zebra mussels can be netted
   function useNet() {
-    if (!net.on) { floatText(diver.x, diver.y - 50, 'Press E to deploy the net', '#fff'); return; }
+    if (!net.on) { floatText(diver.x, diver.y - 50, 'Press E to deploy the ' + T().bag, '#fff'); return; }
     const c = netCenter();
     let caught = 0;
     for (const e of enemies) {
       if (e.type === 'mussel' && e.hp > 0 && Math.hypot(e.x - c.x, e.y - c.y) < NET_R + e.r) { e.hp = 0; killEnemy(e); caught++; }
     }
     net.flash = 0.3;
-    if (!caught) floatText(c.x, c.y, 'Nothing in the net', '#fff');
+    if (!caught) floatText(c.x, c.y, 'Nothing in the ' + T().bag, '#fff');
   }
 
   function bubble(x, y) {
@@ -173,11 +465,12 @@
   function killEnemy(e) {
     const pts = TYPES[e.type].points * combo;
     score += pts; kills++;
+    if (score >= winScore()) gameOver(T().win, true);
     combo = Math.min(5, combo + 1); comboTimer = 2.5;
     reef += KILL_BONUS;
     burst(e.x, e.y, 'rgba(255,200,80,');
     floatText(e.x, e.y - 10, '+' + pts, '#ffd966');
-    floatText(e.x, e.y - 34, '+' + KILL_BONUS + 's reef', '#8affc1');
+    floatText(e.x, e.y - 34, '+' + KILL_BONUS + 's ' + T().place, '#8affc1');
   }
 
   // ---------- update ----------
@@ -201,9 +494,9 @@
     if (Math.random() < dt * 2) bubble(diver.x + diver.face * 14, diver.y - 12);
 
     // oxygen
-    if (diver.y < SURFACE + 15) oxygen = Math.min(100, oxygen + 45 * dt);
-    else oxygen -= (2.2 + diver.y / H) * dt;
-    if (oxygen <= 0) return gameOver('Out of air!');
+    if (level === 1 ? diver.y < SURFACE + 15 : diver.y > FLOOR - 45) oxygen = Math.min(100, oxygen + 45 * dt);
+    else oxygen -= (1.1 + 0.5 * diver.y / H) * dt;
+    if (oxygen <= 0) return gameOver(T().outAir);
 
     // combo decay
     if (comboTimer > 0 && (comboTimer -= dt) <= 0) combo = 1;
@@ -232,7 +525,7 @@
         if (e.hp > 0 && Math.hypot(e.x - s.x, e.y - s.y) < e.r + 8) {
           if (e.type === 'mussel') {   // shells shrug off spears
             s.life = 0; burst(s.x, s.y, 'rgba(210,210,210,');
-            floatText(e.x, e.y - 30, 'Too hard - use the net!', '#fff');
+            floatText(e.x, e.y - 30, T().hard, '#fff');
             break;
           }
           e.hp--; e.flash = 0.15; s.life = 0;
@@ -246,7 +539,7 @@
           n.dead = true; s.life = 0; combo = 1; comboTimer = 0;
           score = Math.max(0, score - 100); reef -= 6 / REEF_DURABILITY; shake = 6;
           burst(n.x, n.y, 'rgba(255,80,80,');
-          floatText(n.x, n.y - 10, 'Native fish! -100', '#ff6b6b');
+          floatText(n.x, n.y - 10, T().natives + '! -100', '#ff6b6b');
         }
       }
     }
@@ -290,12 +583,14 @@
     for (const b of bubbles) { b.y -= b.s * dt; if (b.y < -5) { b.y = H + 5; b.x = rand(0, W); } }
 
     reef -= dt;      // the clock ticks
-    if (reef <= 0) { reef = 0; gameOver('Time ran out - the reef has died.'); }
+    if (reef <= 0) { reef = 0; gameOver(T().dead); }
   }
 
-  let overReason = '';
-  function gameOver(reason) {
-    state = 'over'; overReason = reason;
+  let overReason = '', won = false, winAt = 0;
+  function gameOver(reason, win = false) {
+    if (state !== 'playing') return;
+    state = 'over'; overReason = reason; won = win;
+    if (win) winAt = performance.now();
     if (score > best) {
       best = score;
       try { localStorage.setItem('reefDefenderBest', best); } catch (e) {}
@@ -313,6 +608,7 @@
   }
 
   function drawBackground() {
+    if (level === 2) return drawBackground2();
     const g = ctx.createLinearGradient(0, 0, 0, H);
     g.addColorStop(0, '#74d3f0'); g.addColorStop(0.18, '#2a9acb'); g.addColorStop(0.55, '#0c5584'); g.addColorStop(1, '#021a2e');
     ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
@@ -393,6 +689,7 @@
   }
 
   function drawCorals() {
+    if (level === 2) return drawFlowers();
     const h = Math.min(1, reef / REEF_START);      // corals bleach white as the reef dies
     corals.forEach((c, i) => {
       const sat = 15 + 65 * h, light = 78 - 28 * h, size = c.size * 1.8;
@@ -415,6 +712,7 @@
 
   function drawDiver() {
     const d = diver;
+    if (level === 2) drawRanger(d); else {
     ctx.save(); ctx.translate(d.x, d.y); ctx.scale(d.face * S, S);
     ctx.rotate(Math.max(-0.5, Math.min(0.5, d.vy / 300)));
     const k = Math.sin(d.kick * 2) * 5;
@@ -440,7 +738,7 @@
     ctx.strokeStyle = '#05080c'; ctx.lineWidth = 1.6; ctx.stroke();
     ctx.strokeStyle = '#222'; ctx.lineWidth = 1.4;         // regulator hose
     ctx.beginPath(); ctx.moveTo(-2, -14); ctx.quadraticCurveTo(14, -22, 27, 2); ctx.stroke();
-    ctx.restore();
+    ctx.restore(); }
 
     if (!harpoon) return;
     // arm + speargun pointing at the cursor
@@ -457,8 +755,10 @@
   function drawSpears() {
     for (const s of spears) {
       const tx = s.x - s.dx * 50, ty = s.y - s.dy * 50;
-      ctx.strokeStyle = 'rgba(255,255,255,.3)'; ctx.lineWidth = 1;
-      ctx.beginPath(); ctx.moveTo(tx, ty); ctx.lineTo(diver.x, diver.y); ctx.stroke();
+      if (level === 1) {      // harpoon line
+        ctx.strokeStyle = 'rgba(255,255,255,.3)'; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(tx, ty); ctx.lineTo(diver.x, diver.y); ctx.stroke();
+      }
       limb(tx, ty, s.x, s.y, 3, '#cfd6dc');
       ctx.fillStyle = '#f4f7fa'; ctx.beginPath();
       ctx.moveTo(s.x + s.dx * 9, s.y + s.dy * 9);
@@ -472,15 +772,15 @@
     const a = Math.atan2(c.y - diver.y, c.x - diver.x);
     limb(diver.x, diver.y, c.x - Math.cos(a) * R, c.y - Math.sin(a) * R, 5, '#8b5a2b');   // handle
     ctx.save(); ctx.translate(c.x, c.y);
-    ctx.fillStyle = hot ? 'rgba(255,255,150,.35)' : 'rgba(255,255,255,.1)';
+    ctx.fillStyle = hot ? 'rgba(255,255,150,.35)' : level === 1 ? 'rgba(255,255,255,.1)' : 'rgba(170,130,70,.18)';
     ctx.beginPath(); ctx.arc(0, 0, R, 0, 6.28); ctx.fill();
     ctx.save(); ctx.beginPath(); ctx.arc(0, 0, R, 0, 6.28); ctx.clip();
-    ctx.strokeStyle = hot ? 'rgba(255,255,170,.8)' : 'rgba(235,245,250,.55)'; ctx.lineWidth = 1.4;
+    ctx.strokeStyle = hot ? 'rgba(255,255,170,.8)' : level === 1 ? 'rgba(235,245,250,.55)' : 'rgba(150,110,55,.8)'; ctx.lineWidth = 1.4;
     for (let o = -R; o <= R; o += 17) {   // diamond mesh
       ctx.beginPath(); ctx.moveTo(o - R, -R); ctx.lineTo(o + R, R); ctx.moveTo(o + R, -R); ctx.lineTo(o - R, R); ctx.stroke();
     }
     ctx.restore();
-    ctx.strokeStyle = hot ? '#ffff99' : '#e9dcc0'; ctx.lineWidth = 5;                      // rope rim
+    ctx.strokeStyle = hot ? '#ffff99' : level === 1 ? '#e9dcc0' : '#9a6e32'; ctx.lineWidth = 5;                      // rope rim
     ctx.beginPath(); ctx.arc(0, 0, R, 0, 6.28); ctx.stroke();
     ctx.restore();
   }
@@ -638,16 +938,18 @@
     aura(e.x, e.y, e.r * 2.2 * (e.type === 'algae' || e.type === 'mussel' ? Math.max(0.4, e.grow) : 1), e.type === 'mussel' ? '0,0,0' : '255,40,40', e.phase);
     ctx.save(); ctx.translate(e.x, e.y); ctx.scale(S, S);
     const flash = e.flash > 0, er = e.r / S;
-    if (e.type === 'lionfish') { ctx.scale(e.dir || 1, 1); drawLionfish(e, flash); }
-    else if (e.type === 'crab') drawCrab(e, flash);
-    else if (e.type === 'starfish') drawStarfish(e, flash, er);
-    else if (e.type === 'mussel') drawMussel(e, flash);
-    else if (e.type === 'algae') drawAlgae(e, flash);
+    const plants = level === 2;
+    if (e.type === 'lionfish') { ctx.scale(e.dir || 1, 1); (plants ? drawThistle : drawLionfish)(e, flash); }
+    else if (e.type === 'crab') (plants ? drawVine : drawCrab)(e, flash);
+    else if (e.type === 'starfish') (plants ? drawHogweed : drawStarfish)(e, flash, er);
+    else if (e.type === 'mussel') (plants ? drawBurr : drawMussel)(e, flash);
+    else if (e.type === 'algae') (plants ? drawKudzu : drawAlgae)(e, flash);
     ctx.restore();
   }
 
   function drawNative(n) {
     aura(n.x, n.y, n.r * 2.4, '60,255,100', n.phase);
+    if (level === 2) { drawPollinator(n); return; }
     ctx.save(); ctx.translate(n.x, n.y); ctx.scale(Math.sign(n.vx) * S, S);
     const sw = Math.sin(time * 9 + n.phase) * 3;
     const K = [
@@ -681,6 +983,251 @@
     ctx.restore();
   }
 
+  // ---------- level 2: the meadow ----------
+  function leafTri(x, y, size, flash) {          // trifoliate leaf (kudzu style)
+    for (const [dx, dy, rot] of [[0, -size * 0.7, 0], [-size * 0.75, -size * 0.1, -0.9], [size * 0.75, -size * 0.1, 0.9]]) {
+      const g = ctx.createLinearGradient(x, y - size * 1.4, x, y + size * 0.4);
+      g.addColorStop(0, '#8fd14a'); g.addColorStop(1, '#2f6b1b');
+      ctx.fillStyle = flash ? '#fff' : g;
+      ctx.beginPath(); ctx.ellipse(x + dx, y + dy, size * 0.62, size * 0.95, rot, 0, 6.28); ctx.fill();
+      ctx.strokeStyle = 'rgba(20,60,10,.55)'; ctx.lineWidth = 0.8;
+      ctx.beginPath(); ctx.moveTo(x + dx - Math.sin(rot) * size * 0.9, y + dy + Math.cos(rot) * size * 0.9);
+      ctx.lineTo(x + dx + Math.sin(rot) * size * 0.9, y + dy - Math.cos(rot) * size * 0.9); ctx.stroke();
+    }
+  }
+
+  function drawBackground2() {
+    const g = ctx.createLinearGradient(0, 0, 0, FLOOR);
+    g.addColorStop(0, '#4fa9e6'); g.addColorStop(0.6, '#bfe6f5'); g.addColorStop(1, '#fdf3d0');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+
+    const sg = ctx.createRadialGradient(220, 120, 10, 220, 120, 360);      // sun
+    sg.addColorStop(0, 'rgba(255,250,210,.95)'); sg.addColorStop(0.12, 'rgba(255,240,170,.55)'); sg.addColorStop(1, 'rgba(255,240,170,0)');
+    ctx.fillStyle = sg; ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = '#fffbe0'; ctx.beginPath(); ctx.arc(220, 120, 36, 0, 6.28); ctx.fill();
+    ctx.save(); ctx.globalCompositeOperation = 'lighter';
+    for (let i = 0; i < 6; i++) {
+      const a = 0.25 + i * 0.22 + Math.sin(time * 0.3 + i) * 0.03;
+      ctx.fillStyle = 'rgba(255,245,200,.07)';
+      ctx.beginPath(); ctx.moveTo(220, 120); ctx.lineTo(220 + Math.cos(a) * 1500, 120 + Math.sin(a) * 1500);
+      ctx.lineTo(220 + Math.cos(a + 0.07) * 1500, 120 + Math.sin(a + 0.07) * 1500); ctx.fill();
+    }
+    ctx.restore();
+
+    for (let i = 0; i < 7; i++) {                                           // drifting clouds
+      const cx = (hash(i + 3) * (W + 300) + time * (5 + i * 2)) % (W + 300) - 150, cy = 60 + hash(i + 11) * 220, k = 0.8 + hash(i) * 0.8;
+      ctx.fillStyle = 'rgba(255,255,255,.88)'; ctx.beginPath();
+      for (const [dx, dy, r] of [[0, 0, 22], [26, 5, 28], [56, 0, 20], [30, -12, 20]]) { ctx.moveTo(cx + (dx + r) * k, cy + dy * k); ctx.arc(cx + dx * k, cy + dy * k, r * k, 0, 6.28); }
+      ctx.fill();
+    }
+
+    for (const [col, base, amp, f, ph] of [['rgba(120,160,195,.75)', FLOOR - 210, 90, 0.004, 1], ['rgba(88,145,125,.85)', FLOOR - 110, 60, 0.007, 3]]) {   // mountains
+      ctx.fillStyle = col; ctx.beginPath(); ctx.moveTo(0, H);
+      for (let x = 0; x <= W; x += 20) ctx.lineTo(x, base - amp * (0.5 + 0.5 * Math.sin(x * f + ph)) - amp * 0.4 * Math.sin(x * f * 2.7 + ph * 2));
+      ctx.lineTo(W, H); ctx.fill();
+    }
+    for (let i = 0; i < 42; i++) {                                          // tree line
+      const x = i * 35 + hash(i) * 20, r = 22 + hash(i + 7) * 16, y = FLOOR - 20 - hash(i + 3) * 24;
+      ctx.fillStyle = '#5a3f22'; ctx.fillRect(x - 3, y, 6, 28);
+      const tg = ctx.createRadialGradient(x - r * 0.3, y - r * 0.4, 2, x, y - r * 0.2, r * 1.2);
+      tg.addColorStop(0, '#4f9a3e'); tg.addColorStop(1, '#1f5a2a');
+      ctx.fillStyle = tg; ctx.beginPath(); ctx.arc(x, y - r * 0.3, r, 0, 6.28); ctx.fill();
+    }
+
+    ctx.fillStyle = 'rgba(255,255,230,.7)';                                  // floating pollen
+    for (const b of bubbles) { ctx.beginPath(); ctx.arc(b.x + Math.sin(time + b.y * 0.02) * 6, b.y, b.r * 0.6, 0, 6.28); ctx.fill(); }
+
+    const gg = ctx.createLinearGradient(0, FLOOR, 0, H);                    // ground
+    gg.addColorStop(0, '#86cc4f'); gg.addColorStop(0.2, '#4a8a2c'); gg.addColorStop(0.3, '#6b4a2a'); gg.addColorStop(1, '#3a2514');
+    ctx.fillStyle = gg; ctx.beginPath(); ctx.moveTo(0, H);
+    for (let x = 0; x <= W; x += 20) ctx.lineTo(x, FLOOR + 12 + Math.sin(x * 0.02) * 6 + Math.sin(x * 0.07) * 2);
+    ctx.lineTo(W, H); ctx.fill();
+    for (const k of rocks) {
+      const rg = ctx.createRadialGradient(k.x - k.r * 0.3, k.y - k.r * 0.3, 1, k.x, k.y, k.r);
+      rg.addColorStop(0, 'rgba(160,150,135,.85)'); rg.addColorStop(1, 'rgba(70,60,48,.85)');
+      ctx.fillStyle = rg; ctx.beginPath(); ctx.ellipse(k.x, k.y + 10, k.r * 1.3, k.r, 0, 0, 6.28); ctx.fill();
+    }
+    ctx.lineWidth = 1.6; ctx.lineCap = 'round';                             // grass blades
+    for (let x = 0; x < W; x += 7) {
+      const y = FLOOR + 12 + Math.sin(x * 0.02) * 6 + Math.sin(x * 0.07) * 2, hgt = 8 + hash(x) * 12;
+      ctx.strokeStyle = hash(x + 1) > 0.5 ? '#5aa631' : '#78c043';
+      ctx.beginPath(); ctx.moveTo(x, y + 3); ctx.lineTo(x + Math.sin(time * 1.5 + x) * 3, y - hgt); ctx.stroke();
+    }
+  }
+
+  function drawFlowers() {
+    const h = Math.min(1, reef / REEF_START);      // plants wilt and fade as the meadow dies
+    corals.forEach((c, i) => {
+      const size = c.size * 1.8, base = FLOOR + 16, kind = i % 3;
+      const leaf = `hsl(${105 - 40 * (1 - h)},${25 + 45 * h}%,${28 + 18 * h}%)`;
+      if (kind === 0) {                             // wildflower
+        const sway = Math.sin(time * 1.3 + i) * 5, droop = (1 - h) * size * 0.5;
+        const hx = c.x + sway + droop * 0.6, hy = base - size * 1.2 + droop;
+        ctx.strokeStyle = leaf; ctx.lineWidth = 4; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(c.x, base); ctx.quadraticCurveTo(c.x + sway * 0.2, base - size * 0.7, hx, hy); ctx.stroke();
+        ctx.fillStyle = leaf;
+        for (const side of [-1, 1]) { ctx.beginPath(); ctx.ellipse(c.x + side * 9, base - size * 0.45 + side * 4, 11, 4, side * -0.6, 0, 6.28); ctx.fill(); }
+        ctx.fillStyle = `hsl(${c.hue},${30 + 55 * h}%,${65 + (1 - h) * 10}%)`;
+        for (let k = 0; k < 9; k++) { const a = k * 0.698 + 0.3; ctx.beginPath(); ctx.ellipse(hx + Math.cos(a) * 10, hy + Math.sin(a) * 10, 8, 4, a, 0, 6.28); ctx.fill(); }
+        ctx.fillStyle = `hsl(45,${40 + 50 * h}%,45%)`; ctx.beginPath(); ctx.arc(hx, hy, 5.5, 0, 6.28); ctx.fill();
+      } else if (kind === 1) {                      // berry shrub
+        const rad = size * 0.75;
+        const g = ctx.createRadialGradient(c.x - rad * 0.4, base - rad * 0.6, 3, c.x, base - rad * 0.3, rad * 1.3);
+        g.addColorStop(0, `hsl(110,${30 + 30 * h}%,${45 + 10 * h}%)`); g.addColorStop(1, `hsl(125,${25 + 30 * h}%,${20 + 8 * h}%)`);
+        ctx.fillStyle = g; ctx.beginPath(); ctx.ellipse(c.x, base, rad * 1.3, rad, 0, Math.PI, 0); ctx.fill();
+        ctx.fillStyle = `hsl(${c.hue},${30 + 50 * h}%,52%)`;
+        for (let k = 0; k < 8; k++) { ctx.beginPath(); ctx.arc(c.x + (hash(i * 9 + k) - 0.5) * rad * 1.8, base - 6 - hash(i * 5 + k) * rad * 0.75, 3.2, 0, 6.28); ctx.fill(); }
+      } else {                                      // fern
+        const tip = `hsl(${110 - 40 * (1 - h)},${30 + 40 * h}%,${42 + 16 * h}%)`;
+        for (let j = -3; j <= 3; j++) branch(c.x, base, -Math.PI / 2 + j * 0.28, size * 0.55, 3, 3, i * 10 + j + 20, leaf, tip);
+      }
+    });
+  }
+
+  function drawRanger(d) {
+    ctx.save(); ctx.translate(d.x, d.y); ctx.scale(d.face * S, S);
+    ctx.rotate(Math.max(-0.35, Math.min(0.35, d.vx / 500)));
+    const flick = 0.7 + 0.3 * Math.sin(time * 40);
+    const fg = ctx.createLinearGradient(0, 8, 0, 34);                         // jet flame
+    fg.addColorStop(0, 'rgba(255,230,120,.95)'); fg.addColorStop(1, 'rgba(255,90,20,0)');
+    ctx.fillStyle = fg; ctx.beginPath(); ctx.moveTo(-14, 10); ctx.lineTo(-9, 10); ctx.lineTo(-11.5, 10 + 24 * flick); ctx.fill();
+    const pg = ctx.createLinearGradient(-18, 0, -8, 0);                       // jetpack
+    pg.addColorStop(0, '#6b747c'); pg.addColorStop(0.5, '#c4ccd2'); pg.addColorStop(1, '#5b646c');
+    ctx.fillStyle = pg; ctx.beginPath(); ctx.roundRect(-17, -12, 9, 22, 4); ctx.fill();
+    limb(-4, 10, -6, 22, 6, '#3d4a2a'); limb(5, 10, 7, 22, 6, '#3d4a2a');     // legs
+    ctx.fillStyle = '#4a3220'; ctx.beginPath(); ctx.ellipse(-4, 24, 6, 3.2, 0, 0, 6.28); ctx.ellipse(9, 24, 6, 3.2, 0, 0, 6.28); ctx.fill();
+    const bg = ctx.createLinearGradient(0, -14, 0, 12);                       // ranger shirt
+    bg.addColorStop(0, '#6f8a3a'); bg.addColorStop(1, '#3f5a22');
+    ctx.fillStyle = bg; ctx.beginPath(); ctx.roundRect(-8, -14, 17, 26, 6); ctx.fill();
+    ctx.fillStyle = '#d9b84a'; ctx.fillRect(-8, 4, 17, 3);                    // belt
+    ctx.fillStyle = '#e6b894'; ctx.beginPath(); ctx.arc(1, -20, 7, 0, 6.28); ctx.fill();   // head
+    ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(5, -21, 1.3, 0, 6.28); ctx.fill();
+    ctx.fillStyle = '#a07a3a'; ctx.beginPath(); ctx.ellipse(1, -25, 13, 3, 0, 0, 6.28); ctx.fill();   // hat
+    ctx.fillStyle = '#8a6628'; ctx.beginPath(); ctx.roundRect(-5, -33, 12, 9, 3); ctx.fill();
+    ctx.restore();
+  }
+
+  function drawThistle(e, flash) {                 // flying invasive thistle
+    const w = Math.sin(e.phase * 2) * 2;
+    ctx.strokeStyle = flash ? '#fff' : 'rgba(255,255,255,.85)'; ctx.lineWidth = 1;
+    for (let i = -6; i <= 6; i++) {
+      ctx.beginPath(); ctx.moveTo(-8, 0); ctx.quadraticCurveTo(-18, i * 2 + w, -28 - Math.abs(i), i * 3.5 + w * 1.5); ctx.stroke();
+    }
+    const g = ctx.createRadialGradient(0, 0, 2, 2, 2, 12);
+    g.addColorStop(0, '#9fcf5a'); g.addColorStop(1, '#3f7a24');
+    ctx.fillStyle = flash ? '#fff' : g; ctx.beginPath(); ctx.ellipse(2, 2, 11, 9.5, 0, 0, 6.28); ctx.fill();
+    ctx.strokeStyle = flash ? '#fff' : '#2b5a18'; ctx.lineWidth = 1.2;
+    for (let k = 0; k < 14; k++) {                                 // spiny bracts
+      const a = -2.6 + k * 0.42, x = 2 + Math.cos(a) * 10, y = 2 + Math.sin(a) * 8.5;
+      ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + Math.cos(a) * 5, y + Math.sin(a) * 5); ctx.stroke();
+    }
+    ctx.strokeStyle = flash ? '#fff' : '#a24bd0'; ctx.lineWidth = 2;   // purple tuft
+    for (let k = -4; k <= 4; k++) { ctx.beginPath(); ctx.moveTo(5 + k, -5); ctx.lineTo(7 + k * 2.2, -17 + Math.abs(k)); ctx.stroke(); }
+  }
+
+  function drawVine(e, flash) {                    // creeping vine runner
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = flash ? '#fff' : '#3f7a24'; ctx.lineWidth = 4;
+    ctx.beginPath();
+    for (let x = -22; x <= 18; x += 3) { const y = Math.sin(x * 0.35 + e.phase * 2) * 4; if (x === -22) ctx.moveTo(x, y); else ctx.lineTo(x, y); }
+    ctx.stroke();
+    ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(22, -1, 4, Math.PI * 0.4, Math.PI * 2.2); ctx.stroke();     // curling tip
+    for (const x of [-14, -1, 12]) leafTri(x, Math.sin(x * 0.35 + e.phase * 2) * 4 - 2, 6.5, flash);
+  }
+
+  function drawHogweed(e, flash, er) {             // giant hogweed
+    limb(0, 16, 0, -12, 5, flash ? '#fff' : '#5b8a2e');
+    ctx.fillStyle = flash ? '#fff' : '#7a2c5a';
+    for (let k = 0; k < 5; k++) { ctx.beginPath(); ctx.ellipse(0, 12 - k * 5.5, 2.3, 1.7, 0, 0, 6.28); ctx.fill(); }
+    for (const side of [-1, 1]) {                  // jagged leaves
+      ctx.fillStyle = flash ? '#fff' : '#4f8a2a'; ctx.beginPath(); ctx.moveTo(0, 6);
+      for (let k = 1; k <= 5; k++) ctx.lineTo(side * (k * 4.4), 6 - k * 1.5 + (k % 2 ? -5 : 2));
+      ctx.lineTo(side * 24, 8); ctx.closePath(); ctx.fill();
+    }
+    ctx.strokeStyle = flash ? '#fff' : '#6b8f3a'; ctx.lineWidth = 0.9;
+    for (let k = -6; k <= 6; k++) { ctx.beginPath(); ctx.moveTo(0, -12); ctx.lineTo(k * 3.2, -21 + Math.abs(k) * 0.7); ctx.stroke(); }
+    ctx.fillStyle = flash ? '#fff' : '#fbfbf2';    // white umbel
+    for (let k = -6; k <= 6; k++) { ctx.beginPath(); ctx.arc(k * 3.2, -21 + Math.abs(k) * 0.7, 2.6, 0, 6.28); ctx.fill(); }
+    for (let k = -4; k <= 4; k++) { ctx.beginPath(); ctx.arc(k * 3.8, -17 + Math.abs(k) * 0.4, 2.2, 0, 6.28); ctx.fill(); }
+    if (e.hp < e.maxHp || flash) {
+      ctx.fillStyle = '#222'; ctx.fillRect(-14, -er - 18, 28, 4);
+      ctx.fillStyle = '#e74c3c'; ctx.fillRect(-14, -er - 18, 28 * e.hp / e.maxHp, 4);
+    }
+  }
+
+  function drawKudzu(e, flash) {                   // spreading kudzu patch
+    const g = Math.max(0.4, e.grow);
+    ctx.lineCap = 'round'; ctx.strokeStyle = flash ? '#fff' : '#4a7a24'; ctx.lineWidth = 2.5;
+    for (let k = 0; k < 4; k++) {
+      const sw = Math.sin(time * 1.5 + k + e.x * 0.02) * 4;
+      ctx.beginPath(); ctx.moveTo(-18 * g + k * 12 * g, 9); ctx.quadraticCurveTo(-10 * g + k * 10 * g + sw, -4 * g, -14 * g + k * 14 * g + sw, -16 * g); ctx.stroke();
+    }
+    for (let k = 0; k < 9; k++) {
+      const sw = Math.sin(time * 1.5 + k + e.x * 0.02) * 2.5;
+      leafTri((hash(k + e.x) - 0.5) * 38 * g + sw, -hash(k + 4 + e.x) * 17 * g + 4, 5.5 * Math.max(0.55, g), flash);
+    }
+  }
+
+  function drawBurr(e, flash) {                    // burdock burrs: sprays can't kill them
+    const g = Math.max(0.4, e.grow);
+    ctx.scale(g, g);
+    for (const [x, y] of [[-8, 2], [7, 3], [0, -6]]) {
+      limb(x, y + 4, x * 1.3, 11, 1.6, '#5b4a22');
+      const bg = ctx.createRadialGradient(x - 2, y - 2, 1, x, y, 8);
+      bg.addColorStop(0, '#b59a62'); bg.addColorStop(1, '#5b4a22');
+      ctx.strokeStyle = flash ? '#fff' : '#3d3016'; ctx.lineWidth = 1;
+      for (let k = 0; k < 18; k++) {
+        const a = k * 0.349, x1 = x + Math.cos(a) * 7, y1 = y + Math.sin(a) * 7;
+        ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x + Math.cos(a) * 11, y + Math.sin(a) * 11); ctx.stroke();
+      }
+      ctx.fillStyle = flash ? '#fff' : bg; ctx.beginPath(); ctx.arc(x, y, 7.5, 0, 6.28); ctx.fill();
+    }
+  }
+
+  function drawPollinator(n) {
+    ctx.save(); ctx.translate(n.x, n.y); ctx.scale(Math.sign(n.vx) * S, S);
+    const f = Math.sin(time * (n.kind === 0 ? 8 : 38) + n.phase), s = 0.35 + 0.65 * Math.abs(f);
+    if (n.kind === 0) {                            // monarch butterfly
+      for (const side of [-1, 1]) {
+        ctx.fillStyle = '#f08a1c'; ctx.strokeStyle = '#1a1008'; ctx.lineWidth = 1.3;
+        ctx.beginPath(); ctx.ellipse(-1, side * 7 * s, 7, 7 * s, side * 0.4, 0, 6.28); ctx.fill(); ctx.stroke();
+        ctx.beginPath(); ctx.ellipse(-5, side * 5 * s, 5, 5 * s, side * -0.4, 0, 6.28); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(-1, side * 10 * s, 1.1, 0, 6.28); ctx.arc(2, side * 9 * s, 0.9, 0, 6.28); ctx.fill();
+      }
+      ctx.fillStyle = '#1a1008'; ctx.beginPath(); ctx.ellipse(-1, 0, 8, 2, 0, 0, 6.28); ctx.fill();
+      ctx.beginPath(); ctx.arc(8, 0, 2.2, 0, 6.28); ctx.fill();
+      ctx.strokeStyle = '#1a1008'; ctx.lineWidth = 0.8; ctx.beginPath(); ctx.moveTo(9, -1); ctx.lineTo(14, -5); ctx.moveTo(9, 1); ctx.lineTo(14, 5); ctx.stroke();
+    } else if (n.kind === 1) {                     // honeybee
+      ctx.fillStyle = 'rgba(230,245,255,.7)'; ctx.strokeStyle = 'rgba(120,150,170,.8)'; ctx.lineWidth = 0.8;
+      ctx.beginPath(); ctx.ellipse(-2, -7 * s - 2, 6, 7 * s + 1, -0.5, 0, 6.28); ctx.fill(); ctx.stroke();
+      ctx.save(); ctx.beginPath(); ctx.ellipse(0, 0, 10, 6.5, 0, 0, 6.28); ctx.clip();
+      ctx.fillStyle = '#f5c518'; ctx.fillRect(-11, -7, 22, 14);
+      ctx.fillStyle = '#1a1208'; for (const x of [-5, 0, 5]) ctx.fillRect(x - 1.3, -7, 2.6, 14);
+      ctx.restore();
+      ctx.fillStyle = '#1a1208'; ctx.beginPath(); ctx.arc(10, 0, 3.8, 0, 6.28); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(-10, 0); ctx.lineTo(-14, 0); ctx.lineTo(-10, 1.5); ctx.fill();
+    } else if (n.kind === 2) {                     // hummingbird
+      ctx.fillStyle = 'rgba(70,90,80,.45)';
+      ctx.beginPath(); ctx.ellipse(-3, -6 * s - 3, 11, 5 * s + 1, -0.6, 0, 6.28); ctx.fill();
+      ctx.fillStyle = '#2f6a4a'; ctx.beginPath(); ctx.moveTo(-9, 0); ctx.lineTo(-19, -4); ctx.lineTo(-19, 4); ctx.fill();
+      const bg = ctx.createLinearGradient(0, -6, 0, 6); bg.addColorStop(0, '#3fd18a'); bg.addColorStop(1, '#1d7a58');
+      ctx.fillStyle = bg; ctx.beginPath(); ctx.ellipse(-1, 0, 10, 5.5, 0, 0, 6.28); ctx.fill();
+      ctx.fillStyle = '#d81f4a'; ctx.beginPath(); ctx.ellipse(8, 2, 3, 2.4, 0, 0, 6.28); ctx.fill();
+      ctx.fillStyle = '#2fa86f'; ctx.beginPath(); ctx.arc(9, -1.5, 3.8, 0, 6.28); ctx.fill();
+      ctx.strokeStyle = '#222'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(12, -1); ctx.lineTo(23, 0); ctx.stroke();
+      ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(10, -2.2, 0.9, 0, 6.28); ctx.fill();
+    } else {                                       // ladybug
+      ctx.fillStyle = 'rgba(230,245,255,.55)'; ctx.beginPath(); ctx.ellipse(-3, -7 * s - 2, 6, 5 * s + 1, -0.4, 0, 6.28); ctx.fill();
+      const lg = ctx.createRadialGradient(-2, -3, 1, 0, 0, 10); lg.addColorStop(0, '#ff6b5a'); lg.addColorStop(1, '#b3160f');
+      ctx.fillStyle = lg; ctx.beginPath(); ctx.ellipse(0, 0, 9, 8, 0, 0, 6.28); ctx.fill();
+      ctx.strokeStyle = '#111'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(-9, 0); ctx.lineTo(9, 0); ctx.stroke();
+      ctx.fillStyle = '#111';
+      for (const [x, y] of [[-4, -4], [3, -4], [-4, 4], [3, 4], [0, 0]]) { ctx.beginPath(); ctx.arc(x, y, 1.6, 0, 6.28); ctx.fill(); }
+      ctx.beginPath(); ctx.arc(10, 0, 3.4, 0, 6.28); ctx.fill();
+    }
+    ctx.restore();
+  }
+
   function drawFloatTexts() {
     for (const p of particles) {
       if (p.kind !== 't') continue;
@@ -696,7 +1243,10 @@
     for (const p of particles) {
       const a = Math.max(0, p.life / p.max);
       if (p.kind === 't') continue;
-      if (p.kind === 'b') {
+      if (p.kind === 'b' && level === 2) {
+        ctx.fillStyle = 'rgba(255,255,255,' + a * 0.4 + ')';
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.r * 1.8, 0, 6.28); ctx.fill();
+      } else if (p.kind === 'b') {
         ctx.strokeStyle = p.color + a * 0.8 + ')'; ctx.lineWidth = 1.2;
         ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.28); ctx.stroke();
         ctx.fillStyle = 'rgba(255,255,255,' + a * 0.7 + ')';
@@ -727,25 +1277,29 @@
       ctx.fillText('Combo x' + combo, W / 2, 32);
     }
     ctx.shadowBlur = 0;
-    bar(W - 236, 12, 220, 20, oxygen / 100, oxygen < 25 ? '#e74c3c' : '#4fc3f7', oxygen < 25 ? '#ff8a7a' : '#b3e5fc', 'AIR');
-    bar(W - 236, 38, 220, 20, Math.min(1, reef / REEF_START), reef < 30 ? '#e67e22' : '#2ecc71', reef < 30 ? '#f5b041' : '#a9f0c4', 'REEF ' + Math.floor(reef / 60) + ':' + String(Math.floor(reef % 60)).padStart(2, '0'));
+    bar(W - 236, 12, 220, 20, oxygen / 100, oxygen < 25 ? '#e74c3c' : '#4fc3f7', oxygen < 25 ? '#ff8a7a' : '#b3e5fc', T().gas);
+    bar(W - 236, 38, 220, 20, Math.min(1, reef / REEF_START), reef < 30 ? '#e67e22' : '#2ecc71', reef < 30 ? '#f5b041' : '#a9f0c4', T().clock + ' ' + Math.floor(reef / 60) + ':' + String(Math.floor(reef % 60)).padStart(2, '0'));
     ctx.textAlign = 'right'; ctx.font = 'bold 24px system-ui'; ctx.fillStyle = '#fff';
     ctx.shadowColor = 'rgba(0,20,40,.7)'; ctx.shadowBlur = 4;
-    ctx.fillText('Points ' + score, W - 16, 84);
+    ctx.fillText('Points ' + score + ' / ' + winScore(), W - 16, 84);
     ctx.font = '15px system-ui'; ctx.fillStyle = net.on ? '#ffff99' : '#fff';
     ctx.shadowColor = 'rgba(0,20,40,.7)'; ctx.shadowBlur = 4;
-    ctx.fillText((harpoon ? 'Harpoon [H]: equipped' : net.on ? 'Net [E]: ready - Z to catch' : 'Nothing equipped - H harpoon, E net'), W - 16, 108);
+    ctx.fillText((harpoon ? T().tools[0] : net.on ? T().tools[1] : T().tools[2]), W - 16, 108);
     ctx.shadowBlur = 0;
   }
 
-  function drawOverlay(title, lines) {
+  function drawOverlay(title, lines, prompt = 'Click or press Enter to dive') {
     ctx.fillStyle = 'rgba(0,10,20,.7)'; ctx.fillRect(0, 0, W, H);
     ctx.textAlign = 'center'; ctx.fillStyle = '#fff';
     ctx.font = 'bold 64px system-ui'; ctx.fillText(title, W / 2, H / 2 - 90);
-    ctx.font = '22px system-ui';
-    lines.forEach((l, i) => ctx.fillText(l, W / 2, H / 2 - 30 + i * 34));
+    let y = H / 2 - 30;     // a line is a string, or { t, size, bold, color } for emphasis
+    for (const l of lines) {
+      const o = typeof l === 'string' ? { t: l } : l, size = o.size || 22;
+      ctx.font = (o.bold ? 'bold ' : '') + size + 'px system-ui'; ctx.fillStyle = o.color || '#fff';
+      ctx.fillText(o.t, W / 2, y); y += size * 1.55;
+    }
     ctx.fillStyle = '#ffb347'; ctx.font = 'bold 26px system-ui';
-    ctx.fillText('Click or press Enter to dive', W / 2, H / 2 + 30 + lines.length * 34);
+    ctx.fillText(prompt, W / 2, y + 30);
   }
 
   function render() {
@@ -765,7 +1319,7 @@
     ctx.restore();
 
     const vg = ctx.createRadialGradient(W / 2, H / 2, H * 0.35, W / 2, H / 2, H * 0.95);   // vignette
-    vg.addColorStop(0, 'rgba(0,10,25,0)'); vg.addColorStop(1, 'rgba(0,10,25,.45)');
+    vg.addColorStop(0, 'rgba(0,10,25,0)'); vg.addColorStop(1, level === 1 ? 'rgba(0,10,25,.45)' : 'rgba(20,30,10,.25)');
     ctx.fillStyle = vg; ctx.fillRect(0, 0, W, H);
 
     if (diver) { drawFloatTexts(); drawHUD(); }
@@ -773,11 +1327,18 @@
     if (state === 'title') {
       drawOverlay('Reef Defender', [
         'Invasive species are overrunning the reef.',
-        'Reef clock: 2:00. Every invasive removed adds 10 seconds. Net the zebra mussels.',
-        'Spare native fish. Watch your air - surface to breathe.'
+        'Reef clock: 10:00. Every invasive removed adds 10 seconds. Net the zebra mussels.',
+        'Score 1,000 points to save the reef. Spare native fish. Surface for air.',
+        { t: '', size: 24 },
+        { t: 'COMMANDS', size: 36, bold: true, color: '#ffd966' },
+        { t: 'WASD / arrows: move   ·   H: harpoon   ·   Click / Space: fire', size: 32, bold: true },
+        { t: 'E: net   ·   Z: catch zebra mussels in the net', size: 32, bold: true }
       ]);
     } else if (state === 'over') {
-      drawOverlay('Dive over', [overReason, `Score ${score} · Invasives removed ${kills}` + (score >= best && score > 0 ? ' · New best!' : '')]);
+      const stats = `Score ${score} · ${T().removed} ${kills}` + (score >= best && score > 0 ? ' · New best!' : '');
+      if (won && level === 1) drawOverlay(T().winTitle, [overReason, stats, 'You reached ' + winScore() + ' points!'], 'Click or press Enter to continue');
+      else if (won) drawOverlay(T().winTitle, [overReason, stats, 'You reached ' + winScore() + ' points!'], 'Click or press Enter to continue');
+      else drawOverlay(T().lose, [overReason, stats], 'Click or press Enter to retry');
     }
   }
 
