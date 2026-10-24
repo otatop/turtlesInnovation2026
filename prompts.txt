@@ -1,0 +1,43 @@
+PROMPT LOG
+==========
+Every prompt given to Claude in this project, in order, word for word (typos kept).
+Format:  [number] YYYY-MM-DD  prompt
+
+Entries 1-30 were back-filled when this file was created on 2026-10-24.
+Their dates come from the session's date: 2026-10-20 until the date changed to
+2026-10-22, with no other date change before 2026-10-24. New entries are added by
+following the rules in CLAUDE.md.
+
+----------------------------------------------------------------------
+
+[1] 2026-10-20  Create a new web page with a javascript game. use a scuba diving game that destroys invasive species in the sea
+[2] 2026-10-20  make the bad fishes have uara of red and let the good fishes have green aura please
+[3] 2026-10-20  make the reef time longer for 2
+[4] 2026-10-20  make it really pixxelated
+[5] 2026-10-20  make i more pixelated and make the map bigger
+[6] 2026-10-20  add zebra muscles and add a net that activates when your press e and let the net capture the zebra muscles by pressing z and make it more pixelated please
+[7] 2026-10-20  dont make it pixxelTED nad make it real life
+[8] 2026-10-20  if you want to equip the harpoon press h and make the zebra muscles have black aura pleasse
+[9] 2026-10-20  make it 2 minutes and evry time you kill a bad species add 10 seconds to the reef
+[10] 2026-10-20  put the amount of points under the reef bar
+[11] 2026-10-22  give the reef more time
+[12] 2026-10-22  make a web page with the video game flappy bird and code the game in java script
+[13] 2026-10-22  more time and "air"
+[14] 2026-10-22  give the reef more time to live
+[15] 2026-10-22  make the game winnable at ten thousand points
+[16] 2026-10-22  when you win the game switch to level two a plant version of the same game
+[17] 2026-10-22  make level one winnable at one thousand pointss
+[18] 2026-10-22  you win when you reach 1000 points and move to level two
+[19] 2026-10-22  at start say comands: E for net
+[20] 2026-10-22  make comands bigger
+[21] 2026-10-22  make the text at the bottom of the screen bigger
+[22] 2026-10-22  once you win level one go to the internet and find pictures of all the invasive spicies and once you do that get some facts about how much the invasive spicies are harming the ecosistem
+[23] 2026-10-22  before the game starts go to the enternet and find a picture of a lion fish ahd display the picture for 30 seconds
+[24] 2026-10-22  add a skip button after 15 seconds
+[25] 2026-10-22  and facts about the lion fish and why it's an invasive species to the picture
+[26] 2026-10-22  before level 2 go to the internet and find plant invasive species from a garden and add a picture and facts
+[27] 2026-10-22  at the end of level 1 before the pictures pause and say "Reef Saved" if you have 1000 points
+[28] 2026-10-22  at the end of level 2 and you have 1000 points say "Meadow Saved" then go to the internet and add a random picture of one of the garden invasive species and add facts about that invasive species and say "Thanks for Playing!"
+[29] 2026-10-22  radomize the picture with facts at the begining of level 1 and the end of level 2 and put a skip button after ten seconds at the bedining af level 1
+[30] 2026-10-24  Create a text file called prompts.txt and record all prompts I give you in that file. Add a claude md so that in the future all commands given to you are dated and added to that file..
+[31] 2026-10-24  commit and push both file
