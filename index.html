@@ -47,6 +47,34 @@
     background: #ffb347; color: #1b1200;
   }
   #intro button.show { display: inline-block; }
+  #quiz { position: fixed; inset: 0; z-index: 15; display: none; align-items: center; justify-content: center; padding: 16px; background: rgba(0, 10, 20, .7); }
+  #quiz.show { display: flex; }
+  #quiz .qcard { width: min(100%, 760px); background: #0b2f48; border: 2px solid #ffb347; border-radius: 14px; padding: 22px 26px; box-shadow: 0 10px 40px rgba(0,0,0,.5); }
+  #quiz .qtop { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; font-weight: bold; }
+  #quiz .qtag { color: #ffd966; font-size: 1.1rem; }
+  #quiz #quiz-prize { color: #8affc1; font-size: 1.1rem; }
+  #quiz h3 { margin: 0 0 14px; font-size: 1.5rem; line-height: 1.35; }
+  #quiz .qopts { display: grid; gap: 10px; }
+  #quiz .qopts button {
+    text-align: left; font: 1.15rem system-ui, sans-serif; padding: 12px 16px; border-radius: 10px; border: 2px solid #1b5a7e;
+    background: #0f4263; color: var(--fg); cursor: pointer;
+  }
+  #quiz .qopts button:hover:not(:disabled) { background: #17608c; }
+  #quiz .qopts button.right { background: #1f7a45; border-color: #8affc1; }
+  #quiz .qopts button.wrong { background: #8a2a2a; border-color: #ff8a7a; }
+  #quiz .qbar { height: 8px; margin-top: 16px; background: #05182a; border-radius: 4px; overflow: hidden; }
+  #quiz #quiz-bar { height: 100%; width: 100%; background: #ffb347; }
+  #quiz #quiz-msg { margin: 10px 0 0; min-height: 1.4em; font-size: 1.05rem; opacity: .9; }
+  #lesson { position: fixed; inset: 0; z-index: 12; display: none; overflow-y: auto; padding: 24px 16px; background: rgba(2, 22, 38, .97); }
+  #lesson.show { display: flex; align-items: center; justify-content: center; }
+  #lesson .lcard { width: min(100%, 820px); margin: auto; text-align: center; }
+  #lesson h2 { margin: 0; font-size: 2.6rem; color: #ffd966; }
+  #lesson h3 { margin: 4px 0 18px; font-size: 1.5rem; font-weight: normal; opacity: .85; }
+  #lesson ol { margin: 0 auto 18px; padding: 0; list-style: none; counter-reset: fact; text-align: left; display: grid; gap: 12px; }
+  #lesson li { counter-increment: fact; background: #0b2f48; border: 1px solid #1b5a7e; border-radius: 12px; padding: 14px 18px 14px 58px; position: relative; font-size: 1.3rem; line-height: 1.4; }
+  #lesson li::before { content: counter(fact); position: absolute; left: 16px; top: 50%; transform: translateY(-50%); width: 30px; height: 30px; border-radius: 50%; background: #ffb347; color: #1b1200; font-weight: bold; text-align: center; line-height: 30px; }
+  #lesson p { margin: 0 0 20px; font-size: 1.1rem; opacity: .85; line-height: 1.5; }
+  #lesson button { font: bold 1.3rem system-ui, sans-serif; padding: 12px 34px; border-radius: 10px; border: 0; cursor: pointer; background: #ffb347; color: #1b1200; }
   #facts {
     position: fixed; inset: 0; z-index: 10; overflow-y: auto; display: none;
     background: rgba(2, 22, 38, .97); color: var(--fg); padding: 28px 16px 120px;
@@ -79,8 +107,8 @@
 <h1 id="heading">🤿 Reef Defender</h1>
 <canvas id="game" width="1440" height="900"></canvas>
 <p class="help" id="help">
-  <b>Move</b> WASD / arrows · <b>Harpoon</b> H to equip, then click or Space (aims at the cursor) · <b>Net</b> E to deploy, Z to sweep it · <b>Air</b> swim to the surface to refill.<br>
-  Spear invasive lionfish, green crabs, crown-of-thorns starfish and creeping algae; zebra mussels have hard shells, so net them before they kill the reef. Spare the native fish!
+  <b>Move</b> WASD / arrows · <b>Harpoon</b> H to equip, then click or Space (aims at the cursor) · <b>Net</b> E to deploy, Z to sweep it · <b>Bomb</b> B throws one (it hurts native fish too) · <b>Air</b> swim to the surface to refill.<br>
+  Spear invasive lionfish, green crabs, crown-of-thorns starfish, comb jellies, sun coral, sea lampreys, round gobies, silver carp, water hyacinth and creeping algae; zebra mussels have hard shells, so net them before they kill the reef. Spare the native fish!
 </p>
 
 <div id="intro" role="dialog" aria-label="Invasive species">
@@ -96,6 +124,26 @@
     <p class="src" id="intro-src"></p>
     <p class="count">Game starts in <span id="intro-count">30</span> seconds</p>
     <p><button id="intro-skip">Skip</button></p>
+  </div>
+</div>
+
+<div id="lesson" role="dialog" aria-label="Bonus lesson">
+  <div class="lcard">
+    <h2>Bonus lesson</h2>
+    <h3 id="lesson-name"></h3>
+    <ol id="lesson-facts"></ol>
+    <p id="lesson-hint"></p>
+    <button id="lesson-start">Start the round (Enter)</button>
+  </div>
+</div>
+
+<div id="quiz" role="dialog" aria-label="Bonus question">
+  <div class="qcard">
+    <div class="qtop"><span class="qtag" id="quiz-count">Bonus question</span><span id="quiz-prize"></span></div>
+    <h3 id="quiz-q"></h3>
+    <div class="qopts" id="quiz-opts"></div>
+    <div class="qbar"><div id="quiz-bar"></div></div>
+    <p id="quiz-msg"></p>
   </div>
 </div>
 
@@ -119,7 +167,7 @@
   canvas.width = W; canvas.height = H;
   const SURFACE = 50, FLOOR = H - 60;
   const REEF_START = 600;      // the reef's clock, in seconds
-  const WIN_SCORES = { 1: 1000, 2: 1000 };   // points needed to win each level
+  const WIN_SCORES = { 1: 10000, 2: 10000 };   // points needed to win each level
   const winScore = () => WIN_SCORES[level];
   const KILL_BONUS = 10;       // seconds added per invasive removed
   const REEF_DURABILITY = 3;   // reef damage is divided by this
@@ -130,7 +178,12 @@
   addEventListener('keydown', e => {
     keys[e.code] = true;
     if (e.code === 'Space') { e.preventDefault(); if (state === 'playing') fire(); else startIfIdle(); }
-    if (e.code === 'Enter') { if (state === 'facts') continueToLevel2(); else startIfIdle(); }
+    if (state === 'quiz' && /^(Digit|Numpad)[1-5]$/.test(e.code)) answerQuiz(+e.code.slice(-1) - 1);
+    if (state === 'redeem' && /^(Digit|Numpad)[1-3]$/.test(e.code)) answerRedeem(+e.code.slice(-1) - 1);
+    if (e.code === 'KeyB' && !e.repeat) throwBomb();
+    if (e.code === 'Enter' && !e.repeat) {
+      if (state === 'lesson') beginRound(); else if (state === 'facts') continueToLevel2(); else startIfIdle();
+    }
     if (e.code === 'KeyE' && !e.repeat && state === 'playing') { net.on = !net.on; if (net.on) harpoon = false; }   // one tool in hand at a time
     if (e.code === 'KeyH' && !e.repeat && state === 'playing') { harpoon = !harpoon; if (harpoon) net.on = false; }
     if (e.code === 'KeyZ' && !e.repeat && state === 'playing') useNet();
@@ -168,14 +221,14 @@
          natives: 'Native fish', hard: 'Too hard - use the net!', outAir: 'Out of air!', dead: 'Time ran out - the reef has died.',
          win: 'You removed enough invaders to save the reef!', winTitle: 'Reef saved!', lose: 'Dive over', removed: 'Invasives removed',
          tools: ['Harpoon [H]: equipped', 'Net [E]: ready - Z to catch', 'Nothing equipped - H harpoon, E net'],
-         help: `<b>Move</b> WASD / arrows · <b>Harpoon</b> H to equip, then click or Space (aims at the cursor) · <b>Net</b> E to deploy, Z to sweep it · <b>Air</b> swim to the surface to refill.<br>
-  Spear invasive lionfish, green crabs, crown-of-thorns starfish and creeping algae; zebra mussels have hard shells, so net them before they kill the reef. Spare the native fish!` },
-    2: { heading: '🌿 Meadow Defender - Level 2', title: 'Meadow Defender', gas: 'FUEL', clock: 'MEADOW', place: 'meadow', gun: 'dart launcher', bag: 'sack',
+         help: `<b>Move</b> WASD / arrows · <b>Harpoon</b> H to equip, then click or Space (aims at the cursor) · <b>Net</b> E to deploy, Z to sweep it · <b>Bomb</b> B throws one (it hurts native fish too) · <b>Air</b> swim to the surface to refill.<br>
+  Spear invasive lionfish, green crabs, crown-of-thorns starfish, comb jellies, sun coral, sea lampreys, round gobies, silver carp, water hyacinth and creeping algae; zebra mussels have hard shells, so net them before they kill the reef. Spare the native fish!` },
+    2: { heading: '🌿 Garden Defender - Level 2', title: 'Garden Defender', gas: 'FUEL', clock: 'MEADOW', place: 'meadow', gun: 'dart launcher', bag: 'sack',
          natives: 'Pollinator', hard: "Darts can't kill burrs - use the sack!", outAir: 'Out of jetpack fuel!', dead: 'Time ran out - the meadow has withered.',
          win: 'You cleared the invasive plants and saved the meadow!', winTitle: 'Meadow saved!', lose: 'Mission over', removed: 'Invasive plants removed',
          tools: ['Dart launcher [H]: equipped', 'Sack [E]: ready - Z to bag burrs', 'Nothing equipped - H darts, E sack'],
-         help: `<b>Move</b> WASD / arrows (jetpack) · <b>Dart launcher</b> H to equip, then click or Space (aims at the cursor) · <b>Sack</b> E to open, Z to bag burrs · <b>Fuel</b> land near the ground to refuel.<br>
-  Dart invasive thistles, creeping vines, giant hogweed and kudzu; burdock burrs shrug off darts, so bag them before the meadow withers. Spare the bees, butterflies and other pollinators!` }
+         help: `<b>Move</b> WASD / arrows (jetpack) · <b>Dart launcher</b> H to equip, then click or Space (aims at the cursor) · <b>Sack</b> E to open, Z to bag burrs · <b>Bomb</b> B throws one (it hurts pollinators too) · <b>Fuel</b> land near the ground to refuel.<br>
+  Dart invasive thistles, creeping vines, giant hogweed, Himalayan balsam, garlic mustard, butterfly bush, periwinkle, tree of heaven, Japanese barberry and kudzu; burdock burrs shrug off darts, so bag them before the meadow withers. Spare the bees, butterflies and other pollinators!` }
   };
   const T = () => THEMES[level];
   function setHelp() {
@@ -203,27 +256,79 @@
       credit: ['Jens Petersen (edited by Olegiwit and Fir0002)', 'CC BY 2.5', 'https://commons.wikimedia.org/wiki/File:Pterois_volitans_Manado-e_edit.jpg'],
       facts: ['Spread from the aquarium trade in the 1980s. It is now established from North Carolina to South America, including the Gulf of Mexico.',
               'It eats native fish and crustaceans in large numbers, competing with snapper and grouper fisheries and permanently reshaping reef fish communities.',
-              'In many places there are now more lionfish than some native reef fish. A NOAA ecologist has called it possibly "one of the greatest threats of this century to tropical Atlantic reefs".'] },
+              'In many places there are now more lionfish than some native reef fish. A NOAA ecologist has called it possibly "one of the greatest threats of this century to tropical Atlantic reefs".',
+              'Adult lionfish have very few predators outside their home range, so little keeps their numbers down.',
+              'They eat fish that graze on algae, so algae can grow unchecked and harm reef health.'] },
     { img: 'carcinus-maenas.jpg', name: 'European green crab', sci: 'Carcinus maenas', game: 'The green crab walking the seabed',
       credit: ['Hans Hillewaert', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Carcinus_maenas.jpg'],
       facts: ['Officials in Maine call it the biggest threat in decades to the state\'s soft-shell clam industry, worth about $15.6 million.',
               'It uproots eelgrass while foraging, and its burrowing makes salt marsh banks erode more easily.',
-              'A 2007 estimate put East Coast losses to shellfisheries and eelgrass restoration at $18.6 to $22.6 million a year. In California\'s Tomales Bay, one study found up to a 40% drop in the Manila clam harvest.'] },
+              'A 2007 estimate put East Coast losses to shellfisheries and eelgrass restoration at $18.6 to $22.6 million a year. In California\'s Tomales Bay, one study found up to a 40% drop in the Manila clam harvest.',
+              'Trapping can help: in a Maine project, eelgrass and soft-shell clams began to recover once the crab targets were reached.',
+              'But removal can backfire. In California\'s Seadrift Lagoon, taking out big adults backfired because adults eat young crabs. Keeping some adults in place helped cut the population by about 86%.'] },
     { img: 'crown-of-thorns-starfish.jpg', name: 'Crown-of-thorns starfish', sci: 'Acanthaster planci', game: 'The spiny purple starfish that takes 3 hits',
       credit: ['John Hepburn', 'CC BY 4.0', 'https://commons.wikimedia.org/wiki/File:Acanthaster_planci_460468243_(closeup).jpg'],
       facts: ['Strictly a native of the Indo-Pacific, but its population outbreaks wreck reefs like an invasion.',
               'On the Great Barrier Reef, outbreaks caused about 42% of coral loss between 1985 and 2012 (cyclones 48%, bleaching 10%). Coral cover fell from 28% to under 14%.',
-              'Outbreaks are believed to have gone from once every 50 to 80 years to about once every 15 years, partly linked to fertiliser runoff.'] },
+              'Outbreaks are believed to have gone from once every 50 to 80 years to about once every 15 years, partly linked to fertiliser runoff.',
+              'Australia\'s Reef Authority counts four destructive outbreaks on the Great Barrier Reef since the 1960s.',
+              'A December 2025 CSIRO and AIMS study credited the 2004 zoning changes, which raised no-take zones to 33% of the reef, with reducing outbreaks.'] },
     { img: 'caulerpa-taxifolia.jpg', name: 'Killer algae', sci: 'Caulerpa taxifolia', game: 'The creeping, spreading algae',
       credit: ['Krzysztof Ziarnek, Kenraiz', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Caulerpa_taxifolia_kz01.jpg'],
       facts: ['Accidentally released into the Mediterranean in 1984, with aquarium waste from a museum in Monaco.',
               'Its dense meadows can cover up to 100% of the seabed and push out native seagrasses such as Posidonia. It also makes toxic compounds.',
-              'Fish that eat it, like the salema bream, build up toxins in their flesh. One review reports 25 to 55% fewer native algae species on invaded rock.'] },
+              'Fish that eat it, like the salema bream, build up toxins in their flesh. One review reports 25 to 55% fewer native algae species on invaded rock.',
+              'Its dense meadows trap mineral and organic particles, which silts up the habitats it covers.',
+              'It outcompetes native species for light and food, and fish habitat declines where it takes over.'] },
     { img: 'zebra-mussel.jpg', name: 'Zebra mussel', sci: 'Dreissena polymorpha', game: 'The striped shells you have to net',
       credit: ['Smithsonian Environmental Research Center', 'CC BY 2.0', 'https://commons.wikimedia.org/wiki/File:Dreissena_polymorpha_(I1957)_0265_(39449820624).jpg'],
       facts: ['Damage and control costs in the US and Canada are estimated at around $140 million a year, and some sources put Great Lakes damage to power plants and water intakes at $100 to $500 million a year.',
               'They filter huge amounts of water and can smother native freshwater mussels so heavily that the natives cannot feed or move.',
-              'They build up contaminants such as PCBs and heavy metals, which can move up the food chain.'] }
+              'They build up contaminants such as PCBs and heavy metals, which can move up the food chain.',
+              'They move nutrients toward the lake bottom as they filter huge volumes of water.',
+              'Scientists suspect they can concentrate harmful bacteria, including the kind that causes Type E botulism.'] },
+    { img: 'mnemiopsis.jpg', name: 'Comb jelly', sci: 'Mnemiopsis leidyi', game: 'The glowing jelly that drifts toward the reef',
+      credit: ['Stefan Siebert', 'Public domain', 'https://commons.wikimedia.org/wiki/File:Mnemiopsis_leidyi_2.jpg'],
+      facts: ['Native to the Atlantic coasts of the Americas. It was first seen in the Black Sea in 1982, accidentally introduced.',
+              'By 1988 it was the most common planktonic animal in the Black Sea.',
+              'Its mass boom in 1989 came at the same time as the collapse of the Black Sea anchovy fishery.',
+              'Scientists say overfishing, nutrient pollution and food competition from the jelly all played a part, so it was not the only cause.',
+              'Anchovy stocks began to recover after cold years in 1991 to 1993 slowed the jelly and fishing eased. Another comb jelly, Beroe ovata, arrived later, but it is uncertain that it can keep the invader under control.'] },
+    { img: 'orange-cup-coral.jpg', name: 'Sun coral', sci: 'Tubastraea coccinea', game: 'The orange coral clumps that spread on the reef',
+      credit: ['Diego Delso', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Coral_sol_(Tubastraea_coccinea),_Cabo_Pulmo,_Baja_California,_M%C3%A9xico,_2024-12-19,_DD_22.jpg'],
+      facts: ['NOAA\'s Flower Garden Banks calls it orange cup coral. It crowds out native corals and sponges by taking over hard surfaces.',
+              'Some studies suggest it uses chemical defences to keep other animals from settling nearby.',
+              'It can reproduce about 1.5 years after settling, and its larvae can drift for up to 14 days to reach new sites.',
+              'In the Gulf of Mexico it now lives from the Florida Keys to southern Texas, mostly on oil platforms, shipwrecks and dock floats, but also on natural reef at the Flower Garden Banks.',
+              'NOAA divers removed over 200 colonies from West Flower Garden Bank in 2012. A second invader, black sun coral, was first reported on a Louisiana oil platform in 2010.'] },
+    { img: 'sea-lamprey.jpg', name: 'Sea lamprey', sci: 'Petromyzon marinus', game: 'The eel-like swimmers with sucker mouths',
+      credit: ['Fernando Losada Rodríguez', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Petromyzon_marinus.001_-_Aquarium_Finisterrae.jpg'],
+      facts: ['Native to the Atlantic. It reached the Great Lakes through the Welland Ship Canal (finished in the 1830s), which went around Niagara Falls. It was in Lake Erie by 1921 and Lake Superior by 1938.',
+              'It feeds by sucking the body fluids out of fish, which kills or badly injures them.',
+              'Before control began, sea lampreys killed an estimated 100 million pounds of fish a year.',
+              'Lake Superior lake trout fell by 95% because of sea lampreys and overfishing, and were only declared recovered in 2024.',
+              'The Great Lakes Fishery Commission, set up by the U.S. and Canada in the 1950s, uses lampricides and barriers to cut lamprey numbers by about 90% in most areas. It costs roughly $25 million a year and has to continue.'] },
+    { img: 'round-goby.jpg', name: 'Round goby', sci: 'Neogobius melanostomus', game: 'The bottom fish that crawl along the seabed',
+      credit: ['Peter van der Sluijs', 'CC BY-SA 3.0', 'https://commons.wikimedia.org/wiki/File:A_large_neogobius_melanostomus.jpg'],
+      facts: ['Native to the Black and Caspian seas. It was first found in North America in 1990 in the St. Clair River, probably brought in ships\' ballast water.',
+              'It spread to all five Great Lakes within about a decade.',
+              'Newly hatched gobies swim to the surface at night in summer, which makes them easy to suck into ship ballast tanks.',
+              'Ontario says gobies have cut sport-fish numbers by eating eggs and young and competing for food. Adults mostly eat zebra and quagga mussels.',
+              'The evidence is mixed. A Lake Michigan streams study found no big overall drop in native fish, but the four sites with the most gobies had about 30% fewer native fish on average.'] },
+    { img: 'silver-carp.jpg', name: 'Silver carp', sci: 'Hypophthalmichthys molitrix', game: 'The big silver fish that fill the water',
+      credit: ['USFWS Mountain-Prairie', 'Public domain', 'https://commons.wikimedia.org/wiki/File:Silver_Carp_Adult_(Hypophthalmichthys_molitrix).jpg'],
+      facts: ['Brought to the U.S. in the early 1970s to control algae in wastewater plants and fish ponds, and for food.',
+              'It filters bacteria, algae and zooplankton out of the water, the tiny life at the base of the food web.',
+              'USGS reports that silver and bighead carp have hurt native fish populations throughout the Illinois River.',
+              'They are now established across the lower and middle Mississippi River basins and some of its large tributaries.',
+              'If they reached the Great Lakes, USGS says they would threaten a fishery worth about $7 billion a year.'] },
+    { img: 'pontederia-crassipes.jpg', name: 'Water hyacinth', sci: 'Eichhornia crassipes', game: 'The floating plant mats on the surface',
+      credit: ['Wouter Hagens', 'Public domain', 'https://commons.wikimedia.org/wiki/File:Eichhornia_crassipes_C.jpg'],
+      facts: ['It forms large floating mats that cut off the light to the water below.',
+              'Dense mats can block the exchange of air and water, which lowers water quality and can cause fish kills.',
+              'Under good conditions the mats can double in size in as little as 5 to 18 days, depending on the source.',
+              'It spreads along the surface by runners, and moves with currents, wind and boats. One source says its seeds can stay viable for more than 28 years.',
+              'Mats can shelter mosquitoes and dramatically change native plant and animal communities.'] }
   ];
   const REEF_SOURCES = [
     ['NOAA Fisheries: impacts of invasive lionfish', 'https://www.fisheries.noaa.gov/southeast/ecosystems/impacts-invasive-lionfish'],
@@ -234,7 +339,18 @@
     ['Mongabay: Great Barrier Reef coral loss (AIMS study)', 'https://news.mongabay.com/2012/10/great-barrier-reef-loses-half-its-coral-in-less-than-30-years'],
     ['IUCN Global Invasive Species Database: Caulerpa taxifolia', 'https://iucngisd.org/gisd/species.php?sc=115'],
     ['Penn State Sea Grant: zebra and quagga mussels', 'https://seagrant.psu.edu/zebra-and-quagga-mussels/'],
-    ['Wisconsin DNR: zebra mussel', 'https://dnr.wisconsin.gov/sites/default/files/topic/Invasives/LR_Dreissena_polymorpha.pdf']
+    ['Wisconsin DNR: zebra mussel', 'https://dnr.wisconsin.gov/sites/default/files/topic/Invasives/LR_Dreissena_polymorpha.pdf'],
+    ['Inter-Research: Mnemiopsis and the Black Sea anchovy collapse', 'https://www.int-res.com/abstracts/meps/v269/p173-183/'],
+    ['NOAA Flower Garden Banks: invasive orange cup coral', 'https://flowergarden.noaa.gov/education/invasivecupcoral.html'],
+    ['Smithsonian NEMESIS: Tubastraea coccinea', 'https://invasions.si.edu/nemesis/species_summary/53808'],
+    ['Planet Forward: how one commission controls sea lamprey', 'https://planetforward.org/story/sea-lamprey-commission/'],
+    ['Ontario: round goby', 'https://www.ontario.ca/page/round-goby'],
+    ['University of Michigan: nighttime swim spreads invasive fish', 'https://record.umich.edu/?p=100162'],
+    ['University of Wisconsin: invasive fish enters Lake Michigan streams', 'https://news.wisc.edu/invasive-fish-enters-streams-feeding-lake-michigan-but-so-far-so-good'],
+    ['USGS: science and innovation battling invasive carp', 'https://www.usgs.gov/publications/science-and-innovation-battling-invasive-carp'],
+    ['USGS fact sheet 2022-3012 on invasive carp', 'https://pubs.usgs.gov/fs/2022/3012/fs20223012.pdf'],
+    ['UF/IFAS: water hyacinth', 'https://plant-directory.ifas.ufl.edu/site/assets/files/1085/eiccra.pdf'],
+    ['University of Nebraska: water hyacinth', 'https://cms.unl.edu/ianr/snr/nebraska-cooperative-fish-wildlife-research-unit/invasive-species/aquatic-invasive-plants/water-hyacinth']
   ];
 
   // level 2 preview: invasive plants that began as garden plants
@@ -243,27 +359,79 @@
       credit: ['Lucas Kendall', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Giant_hogweed_in_Dunnyduff_Woods,_Keith.jpg'],
       facts: ['Native to the Caucasus. It was brought to Europe and North America as a garden ornamental, partly because it looks like Queen Anne\'s lace.',
               'Plants reach 10 to 15 feet and shade out smaller native plants. On riverbanks the stands die back in winter and leave bare soil that erodes easily.',
-              'Its sap makes skin very sensitive to sunlight, causing severe burns and blisters. Purplish scars can last for years. Reports of blindness from eye contact are disputed.'] },
+              'Its sap makes skin very sensitive to sunlight, causing severe burns and blisters. Purplish scars can last for years. Reports of blindness from eye contact are disputed.',
+              'Blisters usually appear within about 48 hours of sap touching skin that is then exposed to sunlight.',
+              'In Minnesota it is a prohibited noxious weed, so selling, moving or growing it is banned.'] },
     { img: 'kudzu.jpg', name: 'Kudzu', sci: 'Pueraria montana var. lobata', game: 'the spreading kudzu patches',
       credit: ['Scott Ehardt', 'Public domain', 'https://commons.wikimedia.org/wiki/File:Kudzu_on_trees_in_Atlanta,_Georgia.jpg'],
       facts: ['First brought to the U.S. in 1876 and sold as an ornamental vine to shade porches. Later, farmers were encouraged to plant it against soil erosion: about 85 million plants were given out, and by 1946 an estimated 300,000 acres were planted.',
               'It can grow about a foot a day, with vines up to 100 feet long. It spreads by runners, underground stems and vines that root where they touch the ground.',
-              'It is now a problem in all southeastern states and in almost every habitat except water, blanketing trees and shrubs as in this photo.'] },
+              'It is now a problem in all southeastern states and in almost every habitat except water, blanketing trees and shrubs as in this photo.',
+              'It was first shown at the Japanese exhibition of the 1876 Philadelphia Centennial Exposition.',
+              'Few of its seeds sprout (only one or two viable seeds per pod cluster, and some wait years), so it mostly spreads by runners and rooting vines.'] },
     { img: 'hedera-helix.jpg', name: 'English ivy', sci: 'Hedera helix', game: 'the creeping vine runners',
       credit: ['kallerna', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Hedera_helix_Dover.jpg'],
       facts: ['Native to Europe and long sold as a garden plant. It is now one of the most destructive invasive plants in Pacific Northwest forests, from British Columbia to California.',
               'It is aggressive and tolerates shade, and birds spread its seeds by eating the black berries.',
-              'It climbs and encircles tree trunks, adding weight and making trees more prone to disease and blowdown. On the ground it forms dense mats, leaving some city forests with nothing but ivy underneath.'] },
+              'It climbs and encircles tree trunks, adding weight and making trees more prone to disease and blowdown. On the ground it forms dense mats, leaving some city forests with nothing but ivy underneath.',
+              'It is a regulated weed: Washington lists it as a Class C noxious weed, and Oregon lists it too.',
+              'Much of the "English ivy" that invades is really Atlantic (Irish) ivy. One study found 80% of 119 samples came from Hedera hibernica forms.'] },
     { img: 'lythrum-salicaria.jpg', name: 'Purple loosestrife', sci: 'Lythrum salicaria', game: 'the purple-tufted seeds that fly in',
       credit: ['Ivar Leidus', 'CC BY-SA 3.0', 'https://commons.wikimedia.org/wiki/File:Lythrum_salicaria_-_harilik_kukesaba.jpg'],
       facts: ['A Eurasian perennial brought to North America as a garden plant. It is now a serious wetland invader.',
               'Estimates run as high as 2 to 3 million seeds per plant per year (another source says 300,000 per stalk). Seeds travel by water, wind, waterfowl and animals.',
-              'It forms dense single-species stands that crowd out native plants and the food and cover wildlife need. "Sterile" garden varieties have been shown to produce viable seed, and selling it is illegal in some states, such as Wisconsin.'] },
+              'It forms dense single-species stands that crowd out native plants and the food and cover wildlife need. "Sterile" garden varieties have been shown to produce viable seed, and selling it is illegal in some states, such as Wisconsin.',
+              'Hand-pulling works on small patches if you do it before flowering and bag and bin every fragment.',
+              'Missouri\'s conservation department suggests growing native plants like common rush or Queen of the prairie instead.'] },
     { img: 'reynoutria-japonica.jpg', name: 'Japanese knotweed', sci: 'Reynoutria japonica', game: 'fast-spreading plants that overrun the meadow',
       credit: ['W.carter', 'CC0', 'https://commons.wikimedia.org/wiki/File:Reynoutria_japonica_in_Brastad_1.jpg'],
       facts: ['Sold by nurseries in Britain from 1854 as a fast-growing ornamental, and naturalised in the wild by 1886.',
               'A new plant can grow from a fragment as small as 1 centimetre, so digging it up can make things worse.',
-              'It damages buildings and reduces the capacity of channels and flood defences. A 2013 estimate put the cost to the UK economy at about £165 million a year, and treatment can take up to three years.'] }
+              'It damages buildings and reduces the capacity of channels and flood defences. A 2013 estimate put the cost to the UK economy at about £165 million a year, and treatment can take up to three years.',
+              'In Britain it is an offence to plant it or cause it to spread in the wild (Wildlife and Countryside Act 1981).',
+              'About £70 million was reportedly spent clearing it from the London 2012 Olympic park site.'] },
+    { img: 'impatiens-glandulifera.jpg', name: 'Himalayan balsam', sci: 'Impatiens glandulifera', game: 'the flying pink flowers with seed pods',
+      credit: ['H. Zell', 'CC BY-SA 3.0', 'https://commons.wikimedia.org/wiki/File:Impatiens_glandulifera_0004.JPG'],
+      facts: ['It comes from the Himalayas and reached Britain in 1839 as an ornamental garden plant.',
+              'It escaped and is now widespread along riverbanks and ditches, especially near towns.',
+              'Its seed pods burst open and throw seeds more than 7 metres. One plant can make about 2,500 seeds.',
+              'It dies back each winter, which leaves riverbanks bare and open to flood erosion.',
+              'It crowds out native plants, and its nectar can draw pollinators away from native flowers. Pulling plants before they set seed can clear it within a few years.'] },
+    { img: 'alliaria-petiolata.jpg', name: 'Garlic mustard', sci: 'Alliaria petiolata', game: 'the toothed-leaf patches with white flowers',
+      credit: ['O. Pichard', 'CC BY-SA 3.0', 'https://commons.wikimedia.org/wiki/File:Alliaria_petiolata_marais-belloy-sur-somme_80_26042007_3.jpg'],
+      facts: ['Settlers from Europe are believed to have brought it to North America in the 1800s as a cooking herb. The first record is from Long Island in 1868.',
+              'It is a shade-tolerant herb, most common in the northeastern and midwestern U.S., in floodplain forests, forest edges and stream banks.',
+              'It gives off chemicals that can stop other plants\' seeds from sprouting and shorten their seedling roots.',
+              'It harms the soil fungi (mycorrhizal fungi) that many native plants depend on.',
+              'Pulling it does not fully undo the damage: in one study the soil had not recovered even after 3 years of removing it.'] },
+    { img: 'buddleja-davidii.jpg', name: 'Butterfly bush', sci: 'Buddleja davidii', game: 'the flying purple flower spikes',
+      credit: ['IKAl', 'CC BY-SA 2.5', 'https://commons.wikimedia.org/wiki/File:BuddlejaDavidiiStrauch.jpg'],
+      facts: ['A popular garden shrub sold for its flowers, which attract butterflies.',
+              'One flower cluster can make over 40,000 seeds. They spread by wind and water and can stay dormant in the soil for years.',
+              'In Washington it forms dense thickets along riverbanks and gravel bars that crowd out native plants. The state lists it as a Class B noxious weed.',
+              'In forests it competes with young Douglas-fir trees.',
+              'Oregon bans selling or planting plain "butterfly bush", but allows sterile "Seedless" varieties that make less than 2% viable seed.'] },
+    { img: 'vinca-minor.jpg', name: 'Periwinkle', sci: 'Vinca minor', game: 'the creeping ground vines with blue flowers',
+      credit: ['Ryan Kaldari', 'Public domain', 'https://commons.wikimedia.org/wiki/File:Vinca_minor_Nashville.jpg'],
+      facts: ['Native to Europe and western Asia. It was brought to North America in the 1700s as an ornamental ground cover, and it is still sold in nurseries.',
+              'It spreads mostly by creeping underground stems (rhizomes) and rarely makes seed.',
+              'It has escaped gardens into forests across the eastern U.S., especially near old homesteads.',
+              'Its dense mats push out native wildflowers and woody plants and shade out tree seedlings.',
+              'Its waxy leaves shed many herbicide sprays, so it is hard to remove. Cutting the stems and treating them again and again is the usual method.'] },
+    { img: 'ailanthus-altissima.jpg', name: 'Tree of heaven', sci: 'Ailanthus altissima', game: 'the spinning winged seeds that fly in',
+      credit: ['Darkone', 'CC BY-SA 2.5', 'https://commons.wikimedia.org/wiki/File:G%C3%B6tterbaum_(Ailanthus_altissima).jpg'],
+      facts: ['A Jesuit priest sent its seeds from Beijing to Paris in 1743. William Hamilton planted it at his Philadelphia estate around 1784.',
+              'Nurseries began selling it around 1820, and seed-bearing trees let it spread.',
+              'It can grow about four feet a year and blocks the light for native plants beneath it.',
+              'Its leaves release chemicals that may stop other plants from growing nearby.',
+              'It is the preferred host of the spotted lanternfly, an invasive insect pest.'] },
+    { img: 'berberis-thunbergii.jpg', name: 'Japanese barberry', sci: 'Berberis thunbergii', game: 'the thorny berry shrubs that spread in place',
+      credit: ['MPF', 'CC BY-SA 3.0', 'https://commons.wikimedia.org/wiki/File:Berberis_thunb_frt.jpg'],
+      facts: ['A garden shrub grown for its colour and because deer avoid it. It was planted in place of common barberry, which spreads the wheat disease black stem rust.',
+              'Birds eat the bright red berries, which often last into winter, and spread the seeds. It also spreads by rooting where branches touch the ground.',
+              'It leafs out early and keeps its leaves late, so in some woods the understory ends up as nothing but barberry.',
+              'Deer avoid it, which helps it replace native shrubs and spring wildflowers.',
+              'Its dense thickets stay humid, which ticks like. It is thought to be linked with more Lyme-disease ticks, though studies differ.'] }
   ];
   const PLANT_SOURCES = [
     ['Invasive Species Centre: giant hogweed', 'https://invasivespeciescentre.ca/invasive-species/meet-the-species/invasive-plants/giant-hogweed/'],
@@ -277,7 +445,25 @@
     ['Vermont Invasives: purple loosestrife', 'https://vtinvasives.org/node/128'],
     ['University of Wisconsin Extension: purple loosestrife', 'https://hort.extension.wisc.edu/files/2014/11/Purple-Loosestrife.pdf'],
     ['Missouri Department of Conservation: purple loosestrife', 'https://mdc.mo.gov/discover-nature/field-guide/purple-loosestrife'],
-    ['Phlorum: Japanese knotweed cost to the UK', 'https://www.phlorum.com/blog/2013/10/08/japanese-knotweed-costs-british-economy-165m-year/']
+    ['Phlorum: Japanese knotweed cost to the UK', 'https://www.phlorum.com/blog/2013/10/08/japanese-knotweed-costs-british-economy-165m-year/'],
+    ['Kent Wildlife Trust: Himalayan balsam', 'https://www.kentwildlifetrust.org.uk/wildlife-explorer/wildflowers/himalayan-balsam'],
+    ['Eden Rivers Trust: Himalayan balsam', 'https://edenriverstrust.org.uk/library/himalayan-balsam/'],
+    ['Wisconsin DNR: garlic mustard', 'https://dnr.wisconsin.gov/sites/default/files/topic/Invasives/LR_Alliaria_petiolata.pdf'],
+    ['Wolfe et al. 2008 (Harvard Forest): garlic mustard and soil fungi', 'https://harvardforest1.fas.harvard.edu/publications/pdfs/Wolfe_JofEcology_2008.pdf'],
+    ['IUCN Global Invasive Species Database: garlic mustard', 'https://www.iucngisd.org/gisd/species.php?sc=406'],
+    ['Washington State Noxious Weed Control Board: butterfly bush', 'https://www.nwcb.wa.gov/weeds/butterfly-bush'],
+    ['WSU HortSense: butterfly bush', 'https://hortsense.cahnrs.wsu.edu/?p=5832'],
+    ['Oregon Department of Agriculture: butterfly bush risk assessment', 'https://oregon.gov/oda/Documents/Publications/Weeds/ButterflyBushPlantPestRiskAssessment.pdf'],
+    ['Maryland Invasive Species Council: invasive vinca', 'https://mdinvasives.org/iotm/jan-2019/'],
+    ['EDDMapS: common periwinkle', 'https://www.invasive.org/south/subject.html?sub=3081'],
+    ['NC State Extension: Vinca minor', 'https://weeds.ces.ncsu.edu/wp-content/uploads/2018/10/neal_vinca_minor.pdf?fwd=no'],
+    ['Invasive Species Centre: lesser periwinkle', 'https://www.invasivespeciescentre.ca/?p=40444'],
+    ['Bartram\'s Garden: Ailanthus and Philadelphia', 'https://www.bartramsgarden.org/ailanthus-john-bartram-and-philadelphias-most-notorious-tree/'],
+    ['Columbia University: Ailanthus altissima', 'https://www1.columbia.edu/itc/cerc/danoff-burg/invasion_bio/inv_spp_summ/ailanthus_altissima.html'],
+    ['National Park Service: tree of heaven', 'https://www.nps.gov/shen/learn/nature/tree-of-heaven.htm'],
+    ['Ohio State University: Japanese barberry', 'https://bygl.osu.edu/node/1726'],
+    ['Wisconsin DNR: Japanese barberry', 'https://dnr.wisconsin.gov/topic/Invasives/fact/JapaneseBarberry'],
+    ['Minnesota Department of Agriculture: Japanese barberry', 'https://www.mda.state.mn.us/plants/pestmanagement/weedcontrol/noxiouslist/japanesebarberry']
   ];
 
   const FACT_SETS = {
@@ -328,8 +514,9 @@
     if (state !== 'facts') return;
     if (factsStage === 'reef') { showFacts('plants'); return; }
     document.getElementById('facts').classList.remove('show');
+    if (factsStage === 'end') quizDiff = 0;                   // playing again: easy questions again
     level = factsStage === 'end' ? 1 : 2;      // after the ending, "Play again" restarts from level 1
-    reset(); setHelp(); state = 'playing';
+    reset(); setHelp(); showLesson();
   }
   document.getElementById('facts-continue').addEventListener('click', continueToLevel2);
 
@@ -364,12 +551,283 @@
     tick();
   })();
 
+  // ---------- bonus lesson + easy bonus questions ----------
+  // Before each round a short "Bonus lesson" is shown. During the round the game pauses
+  // every 20 seconds for an easy question about it (4 per round). A right answer gives XP or extra time.
+  // In each question the first answer is the right one; the answers are shuffled when it is shown.
+  const LESSONS = {
+    1: [
+      { name: 'The lionfish',
+        facts: ['Lionfish are not from the Atlantic. They come from the Indo-Pacific.',
+                'People let lionfish go from home aquariums. That is how they got into the Atlantic.',
+                'Lionfish have venomous spines, and very few animals eat them.',
+                'Lionfish eat lots of young fish, including baby snapper and grouper.'],
+        qs: [{ q: 'Where do lionfish come from?', a: ['The Indo-Pacific', 'The Arctic', 'A lake', 'The Caribbean', 'The Mediterranean'] },
+             { q: 'How did lionfish get into the Atlantic?', a: ['People let them go from aquariums', 'They flew there', 'They were born there', 'They swam across the Pacific', 'Storms carried them'] },
+             { q: 'What is venomous on a lionfish?', a: ['Its spines', 'Its soft tail', 'Its big ears', 'Its teeth', 'Its eyes'] },
+             { q: 'What do lionfish eat?', a: ['Young fish like snapper', 'Only seaweed', 'Sand', 'Only plankton', 'Coral'] }] },
+      { name: 'Reef invaders',
+        facts: ['An invasive species is an animal or plant that does not belong in a place and causes harm there.',
+                'Zebra mussels cover native mussels, so the natives cannot eat or move.',
+                'European green crabs eat clams and dig up eelgrass.',
+                'Crown-of-thorns starfish eat coral. Too many of them can kill a whole reef.'],
+        qs: [{ q: 'What is an invasive species?', a: ['Something that does not belong and causes harm', 'A very fast fish', 'A kind of pet', 'Any animal that lives in the sea', 'Any rare species'] },
+             { q: 'What do zebra mussels do to native mussels?', a: ['Cover them so they cannot eat or move', 'Help them grow', 'Paint them', 'Eat them', 'Carry them to new lakes'] },
+             { q: 'What do green crabs eat?', a: ['Clams', 'Sunlight', 'Rocks', 'Only seaweed', 'Coral'] },
+             { q: 'What do crown-of-thorns starfish eat?', a: ['Coral', 'Sand', 'Plastic bottles', 'Lionfish', 'Sunlight'] }] },
+      { name: 'Jellies and corals',
+        facts: ['The comb jelly was first seen in the Black Sea in 1982. It is native to the Atlantic coasts of the Americas.',
+                'The comb jelly boomed in 1989, at the same time as the Black Sea anchovy fishery collapsed.',
+                'Orange cup coral, also called sun coral, takes over hard surfaces and crowds out native corals and sponges.',
+                'In the Gulf of Mexico, sun coral lives mostly on oil platforms, shipwrecks and docks.'],
+        qs: [{ q: 'Where was the comb jelly first seen as an invader in 1982?', a: ['The Black Sea', 'Lake Superior', 'The Red Sea', 'The Baltic Sea', 'The Caribbean'] },
+             { q: 'What happened to the Black Sea anchovy fishery when comb jellies boomed?', a: ['It collapsed', 'It doubled', 'It moved to Asia', 'It stayed the same', 'It became protected'] },
+             { q: 'What does sun coral crowd out?', a: ['Native corals and sponges', 'Sunlight', 'Sand', 'Only seaweed', 'Only fish'] },
+             { q: 'Where is sun coral mostly found in the Gulf of Mexico?', a: ['On oil platforms, shipwrecks and docks', 'Only in rivers', 'On mountain tops', 'In deep mud', 'In coastal caves'] }] },
+      { name: 'Lakes and fish',
+        facts: ['Sea lampreys got into the Great Lakes through the Welland Canal, which went around Niagara Falls.',
+                'Sea lampreys suck the body fluids out of fish.',
+                'Round gobies came from the Black and Caspian seas, probably in ships\' ballast water.',
+                'Round gobies eat the eggs and young of sport fish and compete with them for food.'],
+        qs: [{ q: 'How did sea lampreys get past Niagara Falls?', a: ['Through the Welland Canal', 'They jumped over it', 'They went by train', 'They went through a tunnel', 'A bird carried them'] },
+             { q: 'How do sea lampreys feed?', a: ['They suck fluids out of fish', 'They eat seaweed', 'They eat sand', 'They filter plankton', 'They eat coral'] },
+             { q: 'How did round gobies probably reach the Great Lakes?', a: ['In ships\' ballast water', 'By swimming from the Atlantic', 'On trains', 'As pets in aquariums', 'Carried by birds'] },
+             { q: 'What do round gobies do to sport fish?', a: ['Eat their eggs and young', 'Feed them', 'Carry them upstream', 'Build them nests', 'Protect them'] }] },
+      { name: 'Rivers and ponds',
+        facts: ['Silver carp were brought to the U.S. in the 1970s to clean algae out of ponds and treatment plants.',
+                'Silver carp filter tiny plankton out of the water. That is food at the base of the food web.',
+                'Water hyacinth forms thick floating mats that block sunlight.',
+                'Water hyacinth mats can double in size in as little as 5 to 18 days.'],
+        qs: [{ q: 'Why were silver carp first brought to the U.S.?', a: ['To clean algae from ponds and treatment plants', 'To make fertilizer', 'To feed whales', 'To stop floods', 'As garden decoration'] },
+             { q: 'What do silver carp filter out of the water?', a: ['Tiny plankton', 'Large rocks', 'Sand', 'Oil', 'Boats'] },
+             { q: 'What do thick water hyacinth mats block?', a: ['Sunlight', 'Wind', 'Rocks', 'Rain', 'Sound'] },
+             { q: 'How fast can water hyacinth double in size?', a: ['In as little as 5 to 18 days', 'In 20 years', 'In a single hour', 'In about 5 years', 'It never grows'] }] }
+    ],
+    2: [
+      { name: 'Garden escapees',
+        facts: ['Many invasive plants started out in gardens and then escaped into the wild.',
+                'Kudzu was brought to the U.S. to shade porches and stop soil erosion. It can grow about a foot a day.',
+                'Giant hogweed sap makes skin very sensitive to sunlight and can cause bad burns.',
+                'English ivy climbs trees, and birds spread its seeds when they eat the berries.'],
+        qs: [{ q: 'Where did many invasive plants start?', a: ['In gardens', 'On the moon', 'In the ocean', 'Inside volcanoes', 'In deserts only'] },
+             { q: 'How fast can kudzu grow?', a: ['About a foot a day', 'An inch a year', 'It never grows', 'A mile a day', 'About an inch a day'] },
+             { q: 'What does giant hogweed sap do to skin in the sun?', a: ['Causes burns', 'Makes it softer', 'Turns it blue', 'Makes it glow', 'Cures cuts'] },
+             { q: 'How do birds help English ivy spread?', a: ['They eat the berries and spread the seeds', 'They paint the leaves', 'They water it', 'They cut the vines', 'They bury its roots'] }] },
+      { name: 'Spreading fast',
+        facts: ['Purple loosestrife came from gardens. One plant can make hundreds of thousands of tiny seeds, or more.',
+                'Japanese knotweed can grow from a piece of stem as small as 1 centimetre.',
+                'Invasive plants crowd out native plants that bees and butterflies need.',
+                'Never dump garden waste in the wild. Bag it and put it in the trash.'],
+        qs: [{ q: 'How many seeds can one purple loosestrife make?', a: ['Hundreds of thousands or more', 'Just one', 'None', 'About ten', 'A few hundred'] },
+             { q: 'How small a piece can grow a new Japanese knotweed?', a: ['About 1 centimetre', 'A whole tree', 'None, it cannot', 'A whole field', 'About 1 metre of stem'] },
+             { q: 'What do invasive plants crowd out?', a: ['Native plants', 'Rocks', 'Clouds', 'Bricks', 'Mountains'] },
+             { q: 'What should you do with unwanted garden plants?', a: ['Bag them and put them in the trash', 'Dump them in a stream', 'Plant them in the woods', 'Leave them in the park', 'Throw them over the fence'] }] },
+      { name: 'Seeds and roots',
+        facts: ['Himalayan balsam came to Britain in 1839 as a garden plant.',
+                'Himalayan balsam seed pods burst open and throw seeds more than 7 metres.',
+                'Garlic mustard gives off chemicals that harm the soil fungi native plants need.',
+                'In one study the soil had not recovered even after 3 years of pulling garlic mustard.'],
+        qs: [{ q: 'Why did Himalayan balsam first come to Britain?', a: ['As a garden plant', 'As a food crop', 'By accident on a ship', 'To stop floods', 'As a weed killer'] },
+             { q: 'How do Himalayan balsam seeds spread?', a: ['The pods burst open and throw them', 'They float on balloons', 'Ants plant them', 'Wind only', 'Rain only'] },
+             { q: 'What does garlic mustard harm in the soil?', a: ['Fungi that native plants need', 'Rocks', 'Sand', 'Clay', 'Bricks'] },
+             { q: 'Does pulling garlic mustard fix the soil right away?', a: ['No, the soil can stay damaged for years', 'Yes, right away', 'Yes, by next week', 'Yes, if you pull it twice', 'It makes the soil better'] }] },
+      { name: 'Garden shrubs and ground covers',
+        facts: ['Butterfly bush is a garden shrub sold to attract butterflies, but it spreads into the wild by seed.',
+                'One butterfly bush flower cluster can make over 40,000 seeds.',
+                'Periwinkle is a garden ground cover that spreads by creeping stems called rhizomes.',
+                'Periwinkle forms thick mats that push out native plants and shade out tree seedlings.'],
+        qs: [{ q: 'Why do gardeners plant butterfly bush?', a: ['To attract butterflies', 'To grow vegetables', 'To make shade', 'To stop floods', 'To feed fish'] },
+             { q: 'How many seeds can one butterfly bush flower cluster make?', a: ['Over 40,000', 'About 4', 'About 40', 'About 400', 'None'] },
+             { q: 'How does periwinkle mostly spread?', a: ['By creeping stems', 'By exploding pods', 'By sea currents', 'By wind-blown fluff', 'By sticking to fur'] },
+             { q: 'What does periwinkle do to tree seedlings?', a: ['Shades them out', 'Helps them grow', 'Feeds them', 'Protects them', 'Waters them'] }] },
+      { name: 'Trees and thorny shrubs',
+        facts: ['Tree of heaven came from China. It was planted in Philadelphia around 1784.',
+                'Tree of heaven can grow about 4 feet a year and shade out other plants.',
+                'Japanese barberry is a garden shrub with red berries. Birds eat the berries and spread the seeds.',
+                'Deer avoid Japanese barberry, so it can take over woods and replace native plants.'],
+        qs: [{ q: 'Where did tree of heaven come from?', a: ['China', 'Brazil', 'Canada', 'Australia', 'Antarctica'] },
+             { q: 'How fast can tree of heaven grow?', a: ['About 4 feet a year', 'About 1 inch a year', 'About 40 feet a day', 'It never grows', 'About 1 foot a decade'] },
+             { q: 'How do Japanese barberry seeds spread?', a: ['Birds eat the berries', 'Fish carry them', 'Rain pushes them uphill', 'Deer plant them', 'Ants bury them'] },
+             { q: 'Why does Japanese barberry replace native plants?', a: ['Deer avoid it and eat the natives', 'Deer love to eat it', 'It is cut down every year', 'It needs no light', 'It only grows in water'] }] }
+    ]
+  };
+  const QUIZ_COUNT = 3, QUIZ_EVERY = 20, QUIZ_TIME = 15, QUIZ_XP = 250, QUIZ_BONUS_SECONDS = 20, QUIZ_PENALTY = 100;     // seconds between questions, answer time, prizes
+  let bombCount = 0, bombsAir = [], blasts = [], redeemUsed = false, redeemLeft = 0, redeemRight = 0, redeemLock = false, redeemTimer = 0, redeemPool = [], hudScore = 0, hudFlash = null, quizDiff = 0, quizTimeNow = QUIZ_TIME, pendingEnd = null, quizTotal = QUIZ_COUNT, quizQueue = [], quizTimer = QUIZ_EVERY, quizLeft = 0, quizCur = null, quizLocked = false, quizPrize = 'xp', quizClose = 0;
+
+  function shuffle(list) {
+    const a = list.slice();
+    for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+    return a;
+  }
+
+  // the lesson screen, shown right before every round
+  function showLesson() {
+    const pool = LESSONS[level], lesson = pool[Math.floor(Math.random() * pool.length)];
+    const keep = shuffle(lesson.qs.map((_, i) => i)).slice(0, QUIZ_COUNT).sort((a, b) => a - b);      // 3 of the 4 facts, in lesson order
+    const facts = keep.map(i => lesson.facts[i]), qs = keep.map(i => lesson.qs[i]);
+    quizQueue = qs.slice(); quizTotal = qs.length; quizTimer = QUIZ_EVERY; pendingEnd = null;
+    document.getElementById('lesson-name').textContent = lesson.name;
+    document.getElementById('lesson-facts').innerHTML = facts.map(t => `<li>${t}</li>`).join('');
+    document.getElementById('lesson-hint').textContent = 'You will get ' + QUIZ_COUNT + ' questions about this lesson in this round, one about every ' + QUIZ_EVERY +
+      ' seconds, even if the round ends early. A right answer gives you XP or extra time, but the next question gets a bit harder. A wrong answer costs ' + QUIZ_PENALTY + ' XP.';
+    state = 'lesson';
+    const el = document.getElementById('lesson');
+    el.classList.add('show'); el.scrollTop = 0;
+  }
+
+  function beginRound() {
+    if (state !== 'lesson') return;
+    document.getElementById('lesson').classList.remove('show');
+    state = 'playing';
+  }
+  document.getElementById('lesson-start').addEventListener('click', beginRound);
+
+  function openQuiz() {
+    const q = quizQueue.shift(), review = !!pendingEnd;       // questions left over when the round ended early are review questions, with no prize
+    const n = Math.min(q.a.length, 3 + Math.min(quizDiff, 2));      // each right answer adds an answer to pick from (up to 5)...
+    quizTimeNow = Math.max(7, QUIZ_TIME - 2 * quizDiff);             // ...and takes 2 seconds off the answer time (down to 7)
+    quizCur = { q: q.q, opts: shuffle(q.a.slice(0, n).map((t, i) => ({ t, ok: i === 0 }))) };
+    quizPrize = review ? 'none' : Math.random() < 0.5 ? 'xp' : 'time';
+    quizLeft = quizTimeNow; quizLocked = false; state = 'quiz';
+    document.getElementById('quiz-count').textContent = 'Bonus question ' + (quizTotal - quizQueue.length) + ' of ' + quizTotal + ' · ' + ['Easy', 'Medium', 'Hard'][Math.min(quizDiff, 2)];
+    document.getElementById('quiz-prize').textContent = quizPrize === 'none' ? 'Review question: no prize'
+      : (quizPrize === 'xp' ? 'Right: +' + QUIZ_XP + ' XP' : 'Right: +' + QUIZ_BONUS_SECONDS + ' seconds for the ' + T().place) + '  ·  Wrong: -' + QUIZ_PENALTY + ' XP';
+    document.getElementById('quiz-q').textContent = quizCur.q;
+    document.getElementById('quiz-msg').textContent = 'Press 1 to ' + n + ', or click an answer.';
+    document.getElementById('quiz-bar').style.width = '100%';
+    const box = document.getElementById('quiz-opts'); box.innerHTML = '';
+    quizCur.opts.forEach((o, i) => {
+      const b = document.createElement('button');
+      b.textContent = (i + 1) + '.  ' + o.t;
+      b.addEventListener('click', () => answerQuiz(i));
+      box.appendChild(b);
+    });
+    document.getElementById('quiz').classList.add('show');
+  }
+
+  function answerQuiz(i) {
+    if (state !== 'quiz' || quizLocked) return;
+    quizLocked = true;
+    const btns = document.querySelectorAll('#quiz-opts button'), msg = document.getElementById('quiz-msg');
+    btns.forEach((b, k) => { b.disabled = true; if (quizCur.opts[k].ok) b.classList.add('right'); else if (k === i) b.classList.add('wrong'); });
+    if (i >= 0 && quizCur.opts[i].ok) {
+      if (quizPrize !== 'none') quizDiff++;                       // the next question gets harder
+      if (quizPrize === 'none') msg.textContent = 'Correct!';
+      else if (quizPrize === 'xp') { score += QUIZ_XP; msg.textContent = 'Correct! +' + QUIZ_XP + ' XP'; floatText(diver.x, diver.y - 60, '+' + QUIZ_XP + ' XP', '#8affc1'); }
+      else { reef += QUIZ_BONUS_SECONDS; msg.textContent = 'Correct! +' + QUIZ_BONUS_SECONDS + ' seconds for the ' + T().place; floatText(diver.x, diver.y - 60, '+' + QUIZ_BONUS_SECONDS + 's ' + T().place, '#8affc1'); }
+    } else {
+      let lost = 0;
+      if (quizPrize !== 'none') {                                 // wrong or missed answers cost XP (never below 0)
+        lost = Math.min(score, QUIZ_PENALTY); score -= lost;
+        if (lost) floatText(diver.x, diver.y - 60, '-' + lost + ' XP', '#ff8a7a');
+      }
+      msg.textContent = (i < 0 ? 'Time is up! ' : 'Not quite. ') + (lost ? '-' + lost + ' XP. ' : '') + 'The answer was: ' + quizCur.opts.find(o => o.ok).t;
+    }
+    quizClose = setTimeout(closeQuiz, 2200);
+  }
+
+  function closeQuiz() {
+    clearTimeout(quizClose);
+    document.getElementById('quiz').classList.remove('show');
+    quizTimer = QUIZ_EVERY;
+    if (state !== 'quiz') return;
+    state = 'playing';
+    if (pendingEnd) {                                       // the round already ended: finish the remaining questions, then show the result
+      if (quizQueue.length) { state = 'quiz'; openQuiz(); return; }
+      const e = pendingEnd; pendingEnd = null; finishRound(e.reason, e.win); return;
+    }
+    if (score >= winScore()) gameOver(T().win, true);       // the XP bonus can win the level
+  }
+
+  function tickQuiz(dt) {                                    // the question timer runs while the game is paused
+    if (quizLocked) return;
+    quizLeft -= dt;
+    document.getElementById('quiz-bar').style.width = Math.max(0, quizLeft / quizTimeNow * 100) + '%';
+    if (quizLeft <= 0) answerQuiz(-1);
+  }
+
+  // ---------- redeem yourself ----------
+  // The first time the clock runs out in a round, the player gets 12 seconds to answer 3 questions correctly.
+  // Wrong answers do not count (the next question comes up and the clock keeps running). Success adds time and play goes on.
+  const REDEEM_NEEDED = 3, REDEEM_SECONDS = 12, REDEEM_BONUS = 30;
+
+  function redeemText(msg) {
+    document.getElementById('quiz-count').textContent = 'Time ran out! Redeem yourself';
+    document.getElementById('quiz-prize').textContent = 'Correct: ' + redeemRight + ' / ' + REDEEM_NEEDED + '  ·  ' + Math.max(0, redeemLeft).toFixed(1) + ' s left';
+    if (msg) document.getElementById('quiz-msg').textContent = msg;
+  }
+
+  function nextRedeemQuestion() {
+    if (!redeemPool.length) redeemPool = shuffle(LESSONS[level].flatMap(l => l.qs));
+    const q = redeemPool.pop();
+    quizCur = { q: q.q, opts: shuffle(q.a.slice(0, 3).map((t, i) => ({ t, ok: i === 0 }))) };
+    redeemLock = false;
+    document.getElementById('quiz-q').textContent = quizCur.q;
+    const box = document.getElementById('quiz-opts'); box.innerHTML = '';
+    quizCur.opts.forEach((o, i) => {
+      const b = document.createElement('button');
+      b.textContent = (i + 1) + '.  ' + o.t;
+      b.addEventListener('click', () => answerRedeem(i));
+      box.appendChild(b);
+    });
+  }
+
+  function startRedeem() {
+    redeemUsed = true; redeemLeft = REDEEM_SECONDS; redeemRight = 0; redeemPool = [];
+    state = 'redeem';
+    redeemText('Get ' + REDEEM_NEEDED + ' right in ' + REDEEM_SECONDS + ' seconds to keep playing (+' + REDEEM_BONUS + ' seconds). Press 1, 2 or 3.');
+    nextRedeemQuestion();
+    document.getElementById('quiz-bar').style.width = '100%';
+    document.getElementById('quiz').classList.add('show');
+  }
+
+  function answerRedeem(i) {
+    if (state !== 'redeem' || redeemLock) return;
+    redeemLock = true;
+    const ok = quizCur.opts[i].ok;
+    document.querySelectorAll('#quiz-opts button').forEach((b, k) => {
+      b.disabled = true;
+      if (quizCur.opts[k].ok) b.classList.add('right'); else if (k === i) b.classList.add('wrong');
+    });
+    if (ok) redeemRight++;
+    redeemText(ok ? 'Correct!' : 'Not that one. Next question!');
+    redeemTimer = setTimeout(() => {
+      if (state !== 'redeem') return;
+      if (redeemRight >= REDEEM_NEEDED) endRedeem(true); else nextRedeemQuestion();
+    }, ok && redeemRight >= REDEEM_NEEDED ? 700 : 450);
+  }
+
+  function tickRedeem(dt) {                                   // one clock for all the questions
+    if (redeemLeft <= 0) return;
+    redeemLeft -= dt;
+    document.getElementById('quiz-bar').style.width = Math.max(0, redeemLeft / REDEEM_SECONDS * 100) + '%';
+    redeemText();
+    if (redeemLeft <= 0 && redeemRight < REDEEM_NEEDED) { redeemLock = true; clearTimeout(redeemTimer); redeemText('Time is up!'); redeemTimer = setTimeout(() => endRedeem(false), 1200); }
+  }
+
+  function endRedeem(success) {
+    clearTimeout(redeemTimer);
+    document.getElementById('quiz').classList.remove('show');
+    if (state !== 'redeem') return;
+    state = 'playing';
+    if (success) {
+      reef += REDEEM_BONUS;
+      floatText(diver.x, diver.y - 60, 'Redeemed! +' + REDEEM_BONUS + 's ' + T().place, '#8affc1');
+    } else {
+      gameOver(T().dead);
+    }
+  }
+
   function reset() {
     diver = { x: W / 2, y: level === 1 ? SURFACE + 20 : FLOOR - 50, vx: 0, vy: 0, face: 1, kick: 0 };
     spears = []; enemies = []; natives = []; particles = [];
     bubbles = Array.from({ length: 80 }, () => ({ x: rand(0, W), y: rand(0, H), r: rand(1.5, 5), s: rand(10, 35) }));
     score = 0; kills = 0; oxygen = 100; reef = REEF_START; combo = 1; comboTimer = 0;
     net = { on: false, flash: 0 }; harpoon = true; won = false; musselTimer = 7;
+    bombCount = BOMB_START; bombsAir = []; blasts = [];
+    hudScore = 0; hudFlash = null; redeemUsed = false; clearTimeout(redeemTimer);
+    quizQueue = []; quizTimer = QUIZ_EVERY; clearTimeout(quizClose);
+    document.getElementById('quiz').classList.remove('show'); document.getElementById('lesson').classList.remove('show');
     spawnTimer = 1.5; nativeTimer = 1; algaeTimer = 5; cooldown = 0; time = 0; shake = 0;
   }
 
@@ -379,10 +837,10 @@
       if (performance.now() - winAt > 1200) { state = 'facts'; showFacts(level === 1 ? 'reef' : 'end'); }       // short delay so a frantic click does not skip it
       return;
     }
-    if (state === 'title') level = 1;
+    if (state === 'title') { level = 1; quizDiff = 0; }
     else if (state === 'over' && won) level = level === 1 ? 2 : 1;    // win level 1 -> level 2; win level 2 -> start over
     else if (state !== 'over') return;
-    reset(); setHelp(); state = 'playing';
+    reset(); setHelp(); showLesson();
   }
 
   // ---------- spawning ----------
@@ -391,7 +849,13 @@
     crab:     { r: 15, hp: 1, speed: 55, dps: 3, points: 80 },
     starfish: { r: 22, hp: 3, speed: 25, dps: 5, points: 200 },
     algae:    { r: 16, hp: 1, speed: 0,  dps: 0.8, points: 40 },
-    mussel:   { r: 10, hp: 1, speed: 0,  dps: 1.2, points: 120 }
+    mussel:   { r: 10, hp: 1, speed: 0,  dps: 1.2, points: 120 },
+    jelly:    { r: 20, hp: 2, speed: 35, dps: 3.5, points: 150 },
+    coral:    { r: 16, hp: 2, speed: 0,  dps: 1.0, points: 130 },
+    lamprey:  { r: 17, hp: 1, speed: 75, dps: 3.5, points: 110 },
+    goby:     { r: 15, hp: 1, speed: 55, dps: 3,   points: 90 },
+    carp:     { r: 19, hp: 2, speed: 80, dps: 3.5, points: 130 },
+    hyacinth: { r: 18, hp: 2, speed: 0,  dps: 0.9, points: 120 }
   };
 
   function pickCoral() { return corals[Math.floor(Math.random() * corals.length)]; }
@@ -399,7 +863,7 @@
   function spawnEnemy(type, x, y) {
     const t = TYPES[type], c = pickCoral();
     const fromLeft = Math.random() < 0.5;
-    const isFloor = type === 'crab' || type === 'starfish';
+    const isFloor = type === 'crab' || type === 'starfish' || type === 'goby';
     enemies.push({
       type, r: t.r * S, hp: t.hp, maxHp: t.hp, dps: t.dps,
       speed: t.speed + wave() * 4,
@@ -422,10 +886,10 @@
   function fire() {
     if (!harpoon) { if (cooldown <= 0) { cooldown = 0.5; floatText(diver.x, diver.y - 50, 'Press H to equip the ' + T().gun, '#fff'); } return; }
     if (cooldown > 0) return;
-    cooldown = 0.35;
+    cooldown = 0.18;
     const dx = mouse.x - diver.x, dy = mouse.y - diver.y;
     const d = Math.hypot(dx, dy) || 1;
-    spears.push({ x: diver.x, y: diver.y, dx: dx / d, dy: dy / d, life: 0.9 });
+    spears.push({ x: diver.x, y: diver.y, dx: dx / d, dy: dy / d, life: 1.4 });
     diver.face = dx >= 0 ? 1 : -1;
     for (let i = 0; i < 4; i++) bubble(diver.x + dx / d * 20, diver.y + dy / d * 20);
   }
@@ -447,6 +911,36 @@
     if (!caught) floatText(c.x, c.y, 'Nothing in the ' + T().bag, '#fff');
   }
 
+  // ---------- bombs ----------
+  // B throws a bomb toward the cursor. It blows up where it lands, hurting every invader nearby (even the ones spears can't hurt),
+  // but it also kills native fish/pollinators in the blast, so aim carefully. A new bomb is earned every 12 kills.
+  const BOMB_START = 2, BOMB_MAX = 5, BOMB_RADIUS = 210, BOMB_SPEED = 520, BOMB_RANGE = 650;
+
+  function throwBomb() {
+    if (state !== 'playing' || bombCount <= 0) return;
+    bombCount--;
+    const dx = mouse.x - diver.x, dy = mouse.y - diver.y, d = Math.hypot(dx, dy) || 1, run = Math.min(d, BOMB_RANGE);
+    bombsAir.push({ x: diver.x, y: diver.y, tx: diver.x + dx / d * run, ty: diver.y + dy / d * run, spin: 0 });
+    diver.face = dx >= 0 ? 1 : -1;
+  }
+
+  function explodeBomb(b) {
+    blasts.push({ x: b.x, y: b.y, t: 0 });
+    shake = 12;
+    for (const e of enemies) {
+      if (e.hp > 0 && Math.hypot(e.x - b.x, e.y - b.y) < BOMB_RADIUS + e.r) { e.hp -= 3; e.flash = 0.2; if (e.hp <= 0) killEnemy(e); }
+    }
+    for (const n of natives) {
+      if (!n.dead && Math.hypot(n.x - b.x, n.y - b.y) < BOMB_RADIUS * 0.8 + n.r) {
+        n.dead = true; combo = 1; comboTimer = 0;
+        score = Math.max(0, score - 100); reef -= 6 / REEF_DURABILITY;
+        burst(n.x, n.y, 'rgba(255,80,80,');
+        floatText(n.x, n.y - 10, T().natives + '! -100', '#ff6b6b');
+      }
+    }
+    for (let i = 0; i < 24; i++) bubble(b.x + rand(-70, 70), b.y + rand(-70, 70));
+  }
+
   function bubble(x, y) {
     particles.push({ x, y, vx: rand(-15, 15), vy: rand(-40, -15), life: rand(0.5, 1), max: 1, r: rand(1.5, 4), color: 'rgba(200,240,255,', kind: 'b' });
   }
@@ -466,6 +960,7 @@
     const pts = TYPES[e.type].points * combo;
     score += pts; kills++;
     if (score >= winScore()) gameOver(T().win, true);
+    if (kills % 12 === 0 && bombCount < BOMB_MAX) { bombCount++; floatText(e.x, e.y - 58, '+1 bomb', '#ffd966'); }
     combo = Math.min(5, combo + 1); comboTimer = 2.5;
     reef += KILL_BONUS;
     burst(e.x, e.y, 'rgba(255,200,80,');
@@ -479,12 +974,13 @@
     cooldown = Math.max(0, cooldown - dt);
     shake = Math.max(0, shake - dt * 20);
     net.flash = Math.max(0, net.flash - dt);
+    if (quizQueue.length && (quizTimer -= dt) <= 0) { openQuiz(); return; }      // pause for an easy bonus question
 
     // diver
     const ax = (keys.KeyD || keys.ArrowRight ? 1 : 0) - (keys.KeyA || keys.ArrowLeft ? 1 : 0);
     const ay = (keys.KeyS || keys.ArrowDown ? 1 : 0) - (keys.KeyW || keys.ArrowUp ? 1 : 0);
     const len = Math.hypot(ax, ay) || 1;
-    const accel = net.on ? 450 : 700;
+    const accel = net.on ? 700 : 1100;
     diver.vx += ax / len * accel * dt; diver.vy += ay / len * accel * dt;
     diver.vx *= Math.pow(0.04, dt); diver.vy *= Math.pow(0.04, dt);
     diver.x = Math.max(20, Math.min(W - 20, diver.x + diver.vx * dt));
@@ -505,12 +1001,13 @@
     if ((spawnTimer -= dt) <= 0) {
       spawnTimer = Math.max(0.6, 2.4 - wave() * 0.15);
       const r = Math.random();
-      spawnEnemy(r < 0.4 ? 'lionfish' : r < 0.7 ? 'crab' : 'starfish');
+      spawnEnemy(r < 0.14 ? 'lionfish' : r < 0.28 ? 'crab' : r < 0.4 ? 'starfish' : r < 0.52 ? 'jelly' : r < 0.66 ? 'lamprey' : r < 0.8 ? 'goby' : 'carp');
     }
     if ((nativeTimer -= dt) <= 0) { nativeTimer = rand(1.5, 3.5); spawnNative(); }
     if ((algaeTimer -= dt) <= 0) {
       algaeTimer = Math.max(3, 8 - wave() * 0.5);
-      spawnEnemy('algae', rand(40, W - 40), FLOOR + 8);
+      const kind = ['algae', 'coral', 'hyacinth'][Math.floor(Math.random() * 3)];        // water hyacinth floats at the surface in level 1
+      spawnEnemy(kind, rand(40, W - 40), kind === 'hyacinth' && level === 1 ? SURFACE + 24 : FLOOR + 8);
     }
 
     if ((musselTimer -= dt) <= 0) {
@@ -518,9 +1015,20 @@
       spawnEnemy('mussel', rand(40, W - 40), FLOOR + 8);
     }
 
+    // bombs in flight, and the blasts they leave behind
+    for (const b of bombsAir) {
+      const dx = b.tx - b.x, dy = b.ty - b.y, d = Math.hypot(dx, dy), step = BOMB_SPEED * dt;
+      b.spin += dt * 8;
+      if (Math.random() < dt * 25) bubble(b.x, b.y);
+      if (d <= step) { b.x = b.tx; b.y = b.ty; b.done = true; explodeBomb(b); } else { b.x += dx / d * step; b.y += dy / d * step; }
+    }
+    bombsAir = bombsAir.filter(b => !b.done);
+    for (const k of blasts) k.t += dt;
+    blasts = blasts.filter(k => k.t < 0.5);
+
     // spears
     for (const s of spears) {
-      s.x += s.dx * 620 * dt; s.y += s.dy * 620 * dt; s.life -= dt;
+      s.x += s.dx * 900 * dt; s.y += s.dy * 900 * dt; s.life -= dt;
       for (const e of enemies) {
         if (e.hp > 0 && Math.hypot(e.x - s.x, e.y - s.y) < e.r + 8) {
           if (e.type === 'mussel') {   // shells shrug off spears
@@ -551,7 +1059,7 @@
       if (e.hp <= 0) continue;
       e.flash = Math.max(0, e.flash - dt);
       e.phase += dt * 3;
-      if (e.type === 'algae' || e.type === 'mussel') {
+      if (e.type === 'algae' || e.type === 'mussel' || e.type === 'coral' || e.type === 'hyacinth') {
         e.grow = Math.min(1, e.grow + dt * 0.5);
         if (e.grow >= 1 && (e.spread -= dt) <= 0) {
           e.spread = rand(6, 10);
@@ -562,7 +1070,7 @@
       }
       const dx = e.tx - e.x, dy = e.ty - e.y, d = Math.hypot(dx, dy);
       if (d > 14) {
-        const wob = e.type === 'lionfish' ? Math.sin(e.phase) * 25 : 0;
+        const wob = e.type === 'lionfish' || e.type === 'jelly' || e.type === 'lamprey' || e.type === 'carp' ? Math.sin(e.phase) * 25 : 0;
         e.x += (dx / d) * e.speed * dt - (dy / d) * wob * dt;
         e.y += (dy / d) * e.speed * dt + (dx / d) * wob * dt;
         e.dir = dx >= 0 ? 1 : -1;
@@ -583,12 +1091,21 @@
     for (const b of bubbles) { b.y -= b.s * dt; if (b.y < -5) { b.y = H + 5; b.x = rand(0, W); } }
 
     reef -= dt;      // the clock ticks
-    if (reef <= 0) { reef = 0; gameOver(T().dead); }
+    if (reef <= 0) {
+      reef = 0;
+      if (redeemUsed) gameOver(T().dead);
+      else { startRedeem(); return; }                   // first time the clock runs out: a chance to redeem yourself
+    }
   }
 
   let overReason = '', won = false, winAt = 0;
   function gameOver(reason, win = false) {
     if (state !== 'playing') return;
+    if (quizQueue.length) { pendingEnd = { reason, win }; state = 'quiz'; openQuiz(); return; }    // always ask all the questions
+    finishRound(reason, win);
+  }
+
+  function finishRound(reason, win) {
     state = 'over'; overReason = reason; won = win;
     if (win) winAt = performance.now();
     if (score > best) {
@@ -766,6 +1283,27 @@
     }
   }
 
+  function drawBombs() {
+    for (const b of bombsAir) {
+      ctx.save(); ctx.translate(b.x, b.y); ctx.rotate(b.spin);
+      const g = ctx.createRadialGradient(-4, -4, 2, 0, 0, 15);
+      g.addColorStop(0, '#6f7a88'); g.addColorStop(1, '#10141a');
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, 14, 0, 6.28); ctx.fill();
+      ctx.fillStyle = 'rgba(255,255,255,.35)'; ctx.beginPath(); ctx.arc(-5, -5, 4, 0, 6.28); ctx.fill();
+      ctx.strokeStyle = '#8b6b3a'; ctx.lineWidth = 3; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(0, -14); ctx.quadraticCurveTo(6, -23, 13, -21); ctx.stroke();
+      ctx.fillStyle = Math.random() < 0.5 ? '#ffd23a' : '#ff7a1a'; ctx.beginPath(); ctx.arc(13, -21, 4, 0, 6.28); ctx.fill();
+      ctx.restore();
+    }
+    for (const k of blasts) {
+      const t = k.t / 0.5, r = BOMB_RADIUS * (0.25 + 0.75 * Math.sqrt(t));
+      const g = ctx.createRadialGradient(k.x, k.y, 0, k.x, k.y, r);
+      g.addColorStop(0, `rgba(255,250,200,${0.9 * (1 - t)})`); g.addColorStop(0.5, `rgba(255,160,40,${0.6 * (1 - t)})`); g.addColorStop(1, 'rgba(255,80,20,0)');
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(k.x, k.y, r, 0, 6.28); ctx.fill();
+      ctx.strokeStyle = `rgba(255,255,255,${0.8 * (1 - t)})`; ctx.lineWidth = 5; ctx.beginPath(); ctx.arc(k.x, k.y, r, 0, 6.28); ctx.stroke();
+    }
+  }
+
   function drawNet() {
     if (!net.on) return;
     const c = netCenter(), R = NET_R, hot = net.flash > 0;
@@ -934,8 +1472,253 @@
     }
   }
 
+  // ---------- more invaders: comb jelly + sun coral (reef), Himalayan balsam + garlic mustard (meadow) ----------
+  function hpBar(e, y) {
+    if (e.hp < e.maxHp) {
+      ctx.fillStyle = '#222'; ctx.fillRect(-14, y, 28, 4);
+      ctx.fillStyle = '#e74c3c'; ctx.fillRect(-14, y, 28 * e.hp / e.maxHp, 4);
+    }
+  }
+
+  function drawJelly(e, flash) {                    // comb jelly: clear body with shimmering rainbow comb rows
+    const sw = Math.sin(e.phase * 1.5) * 3;
+    ctx.lineCap = 'round';
+    for (const k of [-1, 1]) {                      // two trailing tentacles
+      ctx.strokeStyle = flash ? '#fff' : 'rgba(220,240,255,.6)'; ctx.lineWidth = 1.2;
+      ctx.beginPath(); ctx.moveTo(k * 5, 10); ctx.quadraticCurveTo(k * 8 + sw, 22, k * 3 - sw, 34); ctx.stroke();
+    }
+    const g = ctx.createRadialGradient(-3, -5, 2, 0, 0, 20);
+    g.addColorStop(0, 'rgba(255,255,255,.8)'); g.addColorStop(1, 'rgba(150,210,255,.3)');
+    ctx.fillStyle = flash ? '#fff' : g; ctx.strokeStyle = 'rgba(210,235,255,.85)'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.ellipse(0, 0, 12, 17, 0, 0, 6.28); ctx.fill(); ctx.stroke();
+    ctx.lineWidth = 1.6; ctx.setLineDash([2, 1.5]);
+    for (let k = -3; k <= 3; k++) {                 // comb rows shimmer through the rainbow
+      const h = (time * 120 + k * 40 + e.phase * 30) % 360;
+      ctx.strokeStyle = flash ? '#fff' : `hsla(${h},90%,65%,.9)`;
+      ctx.beginPath(); ctx.moveTo(k * 3.2, -14 + Math.abs(k)); ctx.lineTo(k * 3.2, 14 - Math.abs(k)); ctx.stroke();
+    }
+    ctx.setLineDash([]);
+    hpBar(e, -26);
+  }
+
+  function drawSunCoral(e, flash) {                 // orange cup coral: a clump of cups with yellow tentacles
+    const g = Math.max(0.4, e.grow);
+    ctx.scale(g, g);
+    ctx.fillStyle = flash ? '#fff' : '#7a4f27'; ctx.beginPath(); ctx.ellipse(0, 10, 21, 5, 0, 0, 6.28); ctx.fill();
+    for (const [x, y, r] of [[-9, 2, 6.5], [7, 3, 7], [0, -6, 6.5], [-2, 5, 5.5], [13, -3, 5]]) {
+      const cg = ctx.createRadialGradient(x - 1, y - 2, 1, x, y, r);
+      cg.addColorStop(0, '#ffb347'); cg.addColorStop(1, '#e07a1f');
+      ctx.fillStyle = flash ? '#fff' : cg; ctx.beginPath(); ctx.arc(x, y, r, 0, 6.28); ctx.fill();
+      ctx.fillStyle = flash ? '#fff' : '#ffe14d'; ctx.beginPath(); ctx.arc(x, y, r * 0.55, 0, 6.28); ctx.fill();
+      ctx.strokeStyle = flash ? '#fff' : '#ffd23a'; ctx.lineWidth = 0.9;
+      for (let k = 0; k < 10; k++) {
+        const a = k * 0.628 + Math.sin(time * 2 + x) * 0.15;
+        ctx.beginPath(); ctx.moveTo(x + Math.cos(a) * r * 0.5, y + Math.sin(a) * r * 0.5); ctx.lineTo(x + Math.cos(a) * r * 1.05, y + Math.sin(a) * r * 1.05); ctx.stroke();
+      }
+    }
+    ctx.scale(1 / g, 1 / g);
+    hpBar(e, -22);
+  }
+
+  function drawBalsam(e, flash) {                   // Himalayan balsam: a flying pink flower trailing a seed pod
+    const sw = Math.sin(e.phase * 2) * 2;
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = flash ? '#fff' : '#5a7d34'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(-14, 6); ctx.quadraticCurveTo(-8, 8 + sw, -2, 3); ctx.stroke();
+    ctx.fillStyle = flash ? '#fff' : '#6fa83a';
+    ctx.beginPath(); ctx.ellipse(-12, 1 - sw, 7, 3, -0.6, 0, 6.28); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(-9, 10 + sw, 7, 3, 0.5, 0, 6.28); ctx.fill();
+    const g = ctx.createRadialGradient(2, -4, 1, 2, -2, 14);
+    g.addColorStop(0, '#ff8fcf'); g.addColorStop(1, '#b3267a');
+    ctx.fillStyle = flash ? '#fff' : g;             // helmet-shaped flower
+    ctx.beginPath(); ctx.moveTo(-3, 4); ctx.quadraticCurveTo(-4, -14, 8, -12); ctx.quadraticCurveTo(16, -8, 12, 2); ctx.quadraticCurveTo(4, 8, -3, 4); ctx.fill();
+    ctx.fillStyle = flash ? '#fff' : '#ffc8e6'; ctx.beginPath(); ctx.ellipse(9, 1, 5, 4, 0.3, 0, 6.28); ctx.fill();
+    ctx.fillStyle = flash ? '#fff' : '#fff2f8'; ctx.beginPath(); ctx.arc(9, 1, 1.6, 0, 6.28); ctx.fill();
+    ctx.fillStyle = flash ? '#fff' : '#7fbf3f'; ctx.beginPath(); ctx.ellipse(-1, 12, 2.3, 7, -0.3, 0, 6.28); ctx.fill();   // seed pod
+    ctx.fillStyle = flash ? '#fff' : '#3d2b1f';
+    for (let k = 0; k < 4; k++) { const t = (time * 1.5 + k * 0.25) % 1; ctx.beginPath(); ctx.arc(-1 + (k - 1.5) * 4 * t, 17 + t * 8, 1.2, 0, 6.28); ctx.fill(); }   // seeds popping out
+    hpBar(e, -22);
+  }
+
+  function drawGarlic(e, flash) {                   // garlic mustard: toothed leaves and stems of small white flowers
+    const g = Math.max(0.4, e.grow);
+    ctx.scale(g, g);
+    for (const [sx, h] of [[-8, 22], [2, 28], [11, 20]]) {
+      const tipx = sx + Math.sin(time * 1.3 + sx) * 2;
+      limb(sx, 8, tipx, 8 - h, 1.6, flash ? '#fff' : '#6b9b3a');
+      ctx.fillStyle = flash ? '#fff' : '#fbfbf2';
+      for (let k = 0; k < 5; k++) { ctx.beginPath(); ctx.arc(sx + (tipx - sx) * (1 - k / 5) * 0.6 + (k % 2 ? 2.2 : -2.2), 8 - h + k * 3.4, 2, 0, 6.28); ctx.fill(); }
+    }
+    for (let k = 0; k < 7; k++) {                   // heart-shaped leaves with toothed edges
+      const x = (k - 3) * 6, y = 7 - (k % 2) * 3, sway = Math.sin(time * 1.4 + k + e.x * 0.02) * 1.2;
+      const lg = ctx.createLinearGradient(0, y - 7, 0, y + 6);
+      lg.addColorStop(0, '#8dc258'); lg.addColorStop(1, '#3e7a24');
+      ctx.fillStyle = flash ? '#fff' : lg;
+      ctx.beginPath(); ctx.moveTo(x + sway, y + 6);
+      for (let t = 0; t <= 8; t++) {
+        const a = Math.PI + t / 8 * Math.PI, rr = 6.5 + (t % 2 ? 1.6 : 0);
+        ctx.lineTo(x + sway + Math.cos(a) * rr, y - 1 + Math.sin(a) * rr * 0.9 + (Math.abs(Math.cos(a)) > 0.7 ? 4 : 0));
+      }
+      ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = 'rgba(20,60,10,.5)'; ctx.lineWidth = 0.7;
+      ctx.beginPath(); ctx.moveTo(x + sway, y + 6); ctx.lineTo(x + sway, y - 6); ctx.stroke();
+    }
+    ctx.scale(1 / g, 1 / g);
+    hpBar(e, -26);
+  }
+
+  // ---------- even more invaders: sea lamprey + round goby (lakes), butterfly bush + periwinkle (meadow) ----------
+  function drawLamprey(e, flash) {                  // sea lamprey: eel-like body with a round, toothed sucker mouth
+    const ph = e.phase * 2;
+    ctx.lineCap = 'round';
+    for (let i = 0; i <= 14; i++) {                 // body drawn as a wavy chain, thinner toward the tail
+      const t = i / 14, x = 22 - t * 52, y = Math.sin(ph + t * 5) * 4 * (0.3 + t), w = 7 - t * 4.5;
+      ctx.fillStyle = flash ? '#fff' : (i % 3 === 0 ? '#6b6a3a' : '#8a8651');
+      ctx.beginPath(); ctx.ellipse(x, y, 4.5, w, 0, 0, 6.28); ctx.fill();
+    }
+    ctx.fillStyle = flash ? '#fff' : 'rgba(40,35,15,.55)';       // mottled spots
+    for (let k = 0; k < 7; k++) { const t = 0.12 + k * 0.12; ctx.beginPath(); ctx.arc(22 - t * 52, Math.sin(ph + t * 5) * 4 * (0.3 + t) - 1, 1.6, 0, 6.28); ctx.fill(); }
+    ctx.fillStyle = flash ? '#fff' : '#3a3a22';                  // gill pores
+    for (let k = 0; k < 5; k++) { ctx.beginPath(); ctx.arc(12 - k * 3.4, 1.5 + Math.sin(ph + (k / 14 * 52) / 52 * 5) * 0.4, 0.9, 0, 6.28); ctx.fill(); }
+    const mg = ctx.createRadialGradient(24, 0, 1, 24, 0, 8);     // sucker disc
+    mg.addColorStop(0, '#5a1f2e'); mg.addColorStop(1, '#d99aa8');
+    ctx.fillStyle = flash ? '#fff' : mg; ctx.beginPath(); ctx.ellipse(24, 0, 4.5, 8, 0, 0, 6.28); ctx.fill();
+    ctx.strokeStyle = flash ? '#fff' : '#f7e6c4'; ctx.lineWidth = 0.9;
+    for (let k = 0; k < 10; k++) { const a = k * 0.628; ctx.beginPath(); ctx.moveTo(24 + Math.cos(a) * 1.5, Math.sin(a) * 3); ctx.lineTo(24 + Math.cos(a) * 3.8, Math.sin(a) * 7); ctx.stroke(); }
+    ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(16, -3.5, 1.4, 0, 6.28); ctx.fill();
+  }
+
+  function drawGoby(e, flash) {                     // round goby: stubby bottom fish with bulging eyes and a black fin spot
+    const sw = Math.sin(e.phase * 2) * 1.5;
+    ctx.fillStyle = flash ? '#fff' : '#9a8d57';
+    ctx.beginPath(); ctx.moveTo(-14, 0); ctx.lineTo(-24, -6 + sw); ctx.lineTo(-24, 6 + sw); ctx.closePath(); ctx.fill();   // tail
+    ctx.beginPath(); ctx.moveTo(-8, -6); ctx.quadraticCurveTo(-1, -14, 7, -6); ctx.closePath(); ctx.fill();             // 1st dorsal fin
+    ctx.fillStyle = flash ? '#fff' : '#1a1a14'; ctx.beginPath(); ctx.arc(2, -8.5, 1.9, 0, 6.28); ctx.fill();            // the black spot
+    const g = ctx.createLinearGradient(0, -8, 0, 8);
+    g.addColorStop(0, '#5f5a34'); g.addColorStop(0.55, '#8d8450'); g.addColorStop(1, '#cdbf86');
+    ctx.fillStyle = flash ? '#fff' : g; ctx.beginPath(); ctx.ellipse(0, 0, 17, 7.5, 0, 0, 6.28); ctx.fill();            // body
+    ctx.fillStyle = flash ? '#fff' : 'rgba(50,45,20,.5)';
+    for (let k = 0; k < 6; k++) { ctx.beginPath(); ctx.arc(-9 + k * 4, -1 + (k % 2) * 3, 1.5, 0, 6.28); ctx.fill(); }   // mottling
+    ctx.fillStyle = flash ? '#fff' : '#b9ad74'; ctx.beginPath(); ctx.ellipse(8, 6, 4, 2, 0.3, 0, 6.28); ctx.fill();      // pelvic fin disc
+    eye(12, -5, 2.4);
+  }
+
+  function drawButterflyBush(e, flash) {            // butterfly bush: a flying purple flower spike trailing leaves and seed fluff
+    const sw = Math.sin(e.phase * 2) * 2;
+    ctx.fillStyle = flash ? '#fff' : 'rgba(255,255,255,.8)';
+    for (let k = 0; k < 6; k++) { const t = (time * 0.9 + k * 0.17) % 1; ctx.beginPath(); ctx.arc(-14 - t * 16, (k - 3) * 2.4 + Math.sin(time * 3 + k) * 2, 1.1, 0, 6.28); ctx.fill(); }   // seeds
+    ctx.fillStyle = flash ? '#fff' : '#5f9a33';
+    ctx.beginPath(); ctx.ellipse(-12, -4 + sw, 8, 3, -0.5, 0, 6.28); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(-12, 7 - sw, 8, 3, 0.5, 0, 6.28); ctx.fill();
+    for (let k = 0; k < 16; k++) {                  // cone-shaped spike of small purple flowers
+      const t = k / 15, x = -10 + t * 26, spread = 7 * (1 - t) + 1.5;
+      const a = k * 2.4 + e.phase;
+      ctx.fillStyle = flash ? '#fff' : `hsl(${280 + (k % 3) * 10},55%,${58 + (k % 4) * 4}%)`;
+      ctx.beginPath(); ctx.arc(x, Math.sin(a) * spread, 3.4 - t * 1.6, 0, 6.28); ctx.fill();
+    }
+    ctx.fillStyle = flash ? '#fff' : '#ffb347'; ctx.beginPath(); ctx.arc(-3, 0, 1.4, 0, 6.28); ctx.fill();     // orange eye of the flower
+    hpBar(e, -22);
+  }
+
+  function drawVinca(e, flash) {                    // periwinkle: a creeping stem of glossy leaves and blue five-petal flowers
+    ctx.lineCap = 'round';
+    const yAt = x => Math.sin(x * 0.3 + e.phase * 2) * 3;
+    ctx.strokeStyle = flash ? '#fff' : '#3a6a2a'; ctx.lineWidth = 2.2;
+    ctx.beginPath();
+    for (let x = -22; x <= 20; x += 3) { if (x === -22) ctx.moveTo(x, yAt(x)); else ctx.lineTo(x, yAt(x)); }
+    ctx.stroke();
+    for (let x = -18; x <= 14; x += 8) {            // pairs of glossy leaves
+      const lg = ctx.createLinearGradient(0, -8, 0, 8); lg.addColorStop(0, '#7fc04a'); lg.addColorStop(1, '#2f6b20');
+      ctx.fillStyle = flash ? '#fff' : lg;
+      ctx.beginPath(); ctx.ellipse(x, yAt(x) - 5, 3.5, 6, 0.4, 0, 6.28); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(x + 2, yAt(x) + 5, 3.5, 6, -0.4, 0, 6.28); ctx.fill();
+    }
+    for (const x of [-6, 12]) {                     // violet-blue flowers
+      const cy = yAt(x) - 9;
+      ctx.fillStyle = flash ? '#fff' : '#8f9be8';
+      for (let k = 0; k < 5; k++) { const a = k * 1.2566 - 1.57; ctx.beginPath(); ctx.ellipse(x + Math.cos(a) * 3.6, cy + Math.sin(a) * 3.6, 3.3, 2.3, a, 0, 6.28); ctx.fill(); }
+      ctx.fillStyle = flash ? '#fff' : '#f4f1d0'; ctx.beginPath(); ctx.arc(x, cy, 1.5, 0, 6.28); ctx.fill();
+    }
+  }
+
+  // ---------- yet more invaders: silver carp + water hyacinth (water), tree of heaven + Japanese barberry (meadow) ----------
+  function drawCarp(e, flash) {                     // silver carp: big silvery fish with a low eye and an upturned mouth
+    const sw = Math.sin(e.phase * 2) * 3;
+    ctx.fillStyle = flash ? '#fff' : '#9aa7ad';
+    ctx.beginPath(); ctx.moveTo(-18, 0); ctx.quadraticCurveTo(-28, -10 + sw, -34, -12 + sw); ctx.lineTo(-30, 0); ctx.lineTo(-34, 12 + sw); ctx.quadraticCurveTo(-28, 10 + sw, -18, 0); ctx.fill();   // forked tail
+    ctx.beginPath(); ctx.moveTo(-6, -9); ctx.quadraticCurveTo(2, -17, 8, -9); ctx.closePath(); ctx.fill();                                                                                      // dorsal fin
+    const g = ctx.createLinearGradient(0, -11, 0, 11);
+    g.addColorStop(0, '#6f7f86'); g.addColorStop(0.5, '#cfd8dc'); g.addColorStop(1, '#f4f7f8');
+    ctx.fillStyle = flash ? '#fff' : g; ctx.beginPath(); ctx.ellipse(0, 0, 24, 10.5, 0, 0, 6.28); ctx.fill();
+    ctx.strokeStyle = flash ? '#fff' : 'rgba(90,110,120,.35)'; ctx.lineWidth = 0.8;                         // scales
+    for (let i = -3; i <= 3; i++) for (let j = -1; j <= 1; j++) { ctx.beginPath(); ctx.arc(i * 6 - 2, j * 5, 3, 0.4, 2.7); ctx.stroke(); }
+    ctx.fillStyle = flash ? '#fff' : '#8c9aa1'; ctx.beginPath(); ctx.ellipse(18, 2, 7, 6, 0, 0, 6.28); ctx.fill();   // head
+    ctx.fillStyle = flash ? '#fff' : '#6a777d'; ctx.beginPath(); ctx.ellipse(8, 4, 4, 2, 0.4, 0, 6.28); ctx.fill();  // pectoral fin
+    eye(19, 3, 2.3);
+    ctx.strokeStyle = '#4a555a'; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(23, 7); ctx.lineTo(26, 5); ctx.stroke();   // mouth
+    hpBar(e, -24);
+  }
+
+  function drawHyacinth(e, flash) {                 // water hyacinth: floating rosette of round glossy leaves and a lavender flower spike
+    const g = Math.max(0.4, e.grow);
+    ctx.scale(g, g);
+    ctx.strokeStyle = flash ? '#fff' : '#3a2a1e'; ctx.lineWidth = 0.9;                                         // dangling roots
+    for (let k = -4; k <= 4; k++) { ctx.beginPath(); ctx.moveTo(k * 3.5, 9); ctx.quadraticCurveTo(k * 4 + Math.sin(time * 1.2 + k) * 2, 17, k * 3, 26); ctx.stroke(); }
+    for (let k = 0; k < 6; k++) {                    // round leaves on swollen stalks
+      const x = (k - 2.5) * 8, y = 4 - (k % 2) * 4 + Math.sin(time * 1.5 + k) * 0.8;
+      const lg = ctx.createRadialGradient(x - 2, y - 3, 1, x, y, 8);
+      lg.addColorStop(0, '#9be05a'); lg.addColorStop(1, '#2f7a2a');
+      ctx.fillStyle = flash ? '#fff' : lg; ctx.beginPath(); ctx.ellipse(x, y, 7.5, 5.5, 0, 0, 6.28); ctx.fill();
+      ctx.fillStyle = flash ? '#fff' : '#6fb04a'; ctx.beginPath(); ctx.ellipse(x, y + 6, 2.8, 3.8, 0, 0, 6.28); ctx.fill();
+    }
+    ctx.strokeStyle = flash ? '#fff' : '#4a8a2e'; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.moveTo(0, 2); ctx.lineTo(0, -14); ctx.stroke();
+    for (let k = 0; k < 6; k++) {                    // lavender flowers with a yellow spot
+      const a = k * 1.047, x = Math.cos(a) * 4, y = -16 + Math.sin(a) * 4;
+      ctx.fillStyle = flash ? '#fff' : '#b9a0e8'; ctx.beginPath(); ctx.ellipse(x, y, 3.8, 2.8, a, 0, 6.28); ctx.fill();
+    }
+    ctx.fillStyle = flash ? '#fff' : '#ffd23a'; ctx.beginPath(); ctx.arc(0, -16, 1.6, 0, 6.28); ctx.fill();
+    ctx.scale(1 / g, 1 / g);
+    hpBar(e, -34);
+  }
+
+  function drawSamara(e, flash) {                   // tree of heaven: a spinning winged seed with a leaf sprig
+    const spin = time * 9 + e.phase;
+    ctx.strokeStyle = flash ? '#fff' : '#4a7a2a'; ctx.lineWidth = 1.6; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(-6, 5); ctx.lineTo(-24, 10); ctx.stroke();                         // leaf stalk
+    ctx.fillStyle = flash ? '#fff' : '#5da63a';
+    for (let k = 0; k < 4; k++) { const x = -10 - k * 4.5, y = 6 + k * 1.4; ctx.beginPath(); ctx.ellipse(x, y - 4, 2.2, 5, 0.4, 0, 6.28); ctx.ellipse(x, y + 4, 2.2, 5, -0.4, 0, 6.28); ctx.fill(); }
+    ctx.save(); ctx.rotate(spin);                    // twisted, spinning wing
+    const wg = ctx.createLinearGradient(-16, 0, 16, 0);
+    wg.addColorStop(0, '#c9753a'); wg.addColorStop(0.5, '#e8a24f'); wg.addColorStop(1, '#b55a2a');
+    ctx.fillStyle = flash ? '#fff' : wg;
+    ctx.beginPath(); ctx.ellipse(0, 0, 17, 4.2 * Math.abs(Math.cos(spin * 0.7)) + 1.4, 0, 0, 6.28); ctx.fill();
+    ctx.restore();
+    ctx.fillStyle = flash ? '#fff' : '#6b3a1a'; ctx.beginPath(); ctx.ellipse(0, 0, 3.6, 3, 0, 0, 6.28); ctx.fill();          // seed
+    hpBar(e, -22);
+  }
+
+  function drawBarberry(e, flash) {                 // Japanese barberry: thorny arching branches with small leaves and red berries
+    const g = Math.max(0.4, e.grow);
+    ctx.scale(g, g);
+    ctx.lineCap = 'round';
+    for (const [dx, h, c] of [[-13, 22, -8], [-4, 28, 0], [6, 26, 6], [15, 20, 10]]) {
+      const sway = Math.sin(time * 1.2 + dx) * 1.6;
+      ctx.strokeStyle = flash ? '#fff' : '#7a4a2a'; ctx.lineWidth = 1.8;
+      ctx.beginPath(); ctx.moveTo(dx, 10); ctx.quadraticCurveTo(dx + c + sway, 10 - h * 0.9, dx + c * 1.8 + sway, 10 - h); ctx.stroke();
+      for (let t = 0.3; t <= 1; t += 0.23) {         // leaves, thorns and berries along the branch
+        const x = dx + (c * 1.8) * t + sway * t, y = 10 - h * t;
+        ctx.fillStyle = flash ? '#fff' : (t > 0.8 ? '#b0453a' : '#6fa33a');
+        ctx.beginPath(); ctx.ellipse(x - 3, y, 3.2, 1.9, -0.4, 0, 6.28); ctx.ellipse(x + 3, y - 1, 3.2, 1.9, 0.4, 0, 6.28); ctx.fill();
+        ctx.fillStyle = flash ? '#fff' : '#d62b2b'; ctx.beginPath(); ctx.ellipse(x, y + 3, 1.6, 2.4, 0, 0, 6.28); ctx.fill();
+        ctx.strokeStyle = flash ? '#fff' : '#5a3418'; ctx.lineWidth = 0.8; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + 3, y + 3); ctx.stroke();
+      }
+    }
+    ctx.scale(1 / g, 1 / g);
+    hpBar(e, -30);
+  }
+
   function drawEnemy(e) {
-    aura(e.x, e.y, e.r * 2.2 * (e.type === 'algae' || e.type === 'mussel' ? Math.max(0.4, e.grow) : 1), e.type === 'mussel' ? '0,0,0' : '255,40,40', e.phase);
+    aura(e.x, e.y, e.r * 2.2 * (e.type === 'algae' || e.type === 'mussel' || e.type === 'coral' || e.type === 'hyacinth' ? Math.max(0.4, e.grow) : 1), e.type === 'mussel' ? '0,0,0' : '255,40,40', e.phase);
     ctx.save(); ctx.translate(e.x, e.y); ctx.scale(S, S);
     const flash = e.flash > 0, er = e.r / S;
     const plants = level === 2;
@@ -944,6 +1727,12 @@
     else if (e.type === 'starfish') (plants ? drawHogweed : drawStarfish)(e, flash, er);
     else if (e.type === 'mussel') (plants ? drawBurr : drawMussel)(e, flash);
     else if (e.type === 'algae') (plants ? drawKudzu : drawAlgae)(e, flash);
+    else if (e.type === 'jelly') (plants ? drawBalsam : drawJelly)(e, flash);
+    else if (e.type === 'lamprey') { ctx.scale(e.dir || 1, 1); (plants ? drawButterflyBush : drawLamprey)(e, flash); }
+    else if (e.type === 'goby') { ctx.scale(e.dir || 1, 1); (plants ? drawVinca : drawGoby)(e, flash); }
+    else if (e.type === 'carp') { ctx.scale(e.dir || 1, 1); (plants ? drawSamara : drawCarp)(e, flash); }
+    else if (e.type === 'hyacinth') (plants ? drawBarberry : drawHyacinth)(e, flash);
+    else if (e.type === 'coral') (plants ? drawGarlic : drawSunCoral)(e, flash);
     ctx.restore();
   }
 
@@ -1279,12 +2068,24 @@
     ctx.shadowBlur = 0;
     bar(W - 236, 12, 220, 20, oxygen / 100, oxygen < 25 ? '#e74c3c' : '#4fc3f7', oxygen < 25 ? '#ff8a7a' : '#b3e5fc', T().gas);
     bar(W - 236, 38, 220, 20, Math.min(1, reef / REEF_START), reef < 30 ? '#e67e22' : '#2ecc71', reef < 30 ? '#f5b041' : '#a9f0c4', T().clock + ' ' + Math.floor(reef / 60) + ':' + String(Math.floor(reef % 60)).padStart(2, '0'));
-    ctx.textAlign = 'right'; ctx.font = 'bold 24px system-ui'; ctx.fillStyle = '#fff';
+    // big XP counter under the bars; it flashes green when you gain XP and red when you lose it
+    if (score !== hudScore) { hudFlash = { until: performance.now() + 800, gain: score > hudScore }; hudScore = score; }
+    const flashing = hudFlash && performance.now() < hudFlash.until, xpText = 'XP ' + score;
+    ctx.textAlign = 'right'; ctx.lineJoin = 'round';
+    ctx.font = 'bold 68px system-ui'; ctx.lineWidth = 7; ctx.strokeStyle = 'rgba(0,20,40,.9)';
+    ctx.strokeText(xpText, W - 16, 128);
+    ctx.fillStyle = flashing ? (hudFlash.gain ? '#8affc1' : '#ff8a7a') : '#ffd966';
+    ctx.fillText(xpText, W - 16, 128);
     ctx.shadowColor = 'rgba(0,20,40,.7)'; ctx.shadowBlur = 4;
-    ctx.fillText('Points ' + score + ' / ' + winScore(), W - 16, 84);
-    ctx.font = '15px system-ui'; ctx.fillStyle = net.on ? '#ffff99' : '#fff';
+    ctx.font = 'bold 18px system-ui'; ctx.fillStyle = '#fff';
+    ctx.fillText('Goal: ' + winScore() + ' XP', W - 16, 154);
+    ctx.shadowBlur = 0;
+    bar(W - 236, 162, 220, 14, Math.min(1, score / winScore()), '#ffb347', '#ffe08a', '');
+    ctx.textAlign = 'right'; ctx.font = '15px system-ui'; ctx.fillStyle = net.on ? '#ffff99' : '#fff';
     ctx.shadowColor = 'rgba(0,20,40,.7)'; ctx.shadowBlur = 4;
-    ctx.fillText((harpoon ? T().tools[0] : net.on ? T().tools[1] : T().tools[2]), W - 16, 108);
+    ctx.fillText((harpoon ? T().tools[0] : net.on ? T().tools[1] : T().tools[2]), W - 16, 204);
+    ctx.fillStyle = bombCount ? '#ffd966' : '#9fb0bd'; ctx.font = 'bold 20px system-ui';
+    ctx.fillText('Bombs: ' + bombCount + '   [B]', W - 16, 232);
     ctx.shadowBlur = 0;
   }
 
@@ -1312,6 +2113,7 @@
       enemies.forEach(drawEnemy);
       natives.forEach(drawNative);
       drawSpears();
+      drawBombs();
       drawNet();
       drawDiver();
       drawParticles();
@@ -1328,11 +2130,13 @@
       drawOverlay('Reef Defender', [
         'Invasive species are overrunning the reef.',
         'Reef clock: 10:00. Every invasive removed adds 10 seconds. Net the zebra mussels.',
-        'Score 1,000 points to save the reef. Spare native fish. Surface for air.',
+        'Score 10,000 points to save the reef. Spare native fish. Surface for air.',
+        'Each round starts with a short bonus lesson. Easy questions about it pop up: answer right for XP or extra time.',
         { t: '', size: 24 },
         { t: 'COMMANDS', size: 36, bold: true, color: '#ffd966' },
         { t: 'WASD / arrows: move   ·   H: harpoon   ·   Click / Space: fire', size: 32, bold: true },
-        { t: 'E: net   ·   Z: catch zebra mussels in the net', size: 32, bold: true }
+        { t: 'E: net   ·   Z: catch zebra mussels in the net', size: 32, bold: true },
+        { t: 'B: throw a bomb (it hurts native fish too!)', size: 32, bold: true }
       ]);
     } else if (state === 'over') {
       const stats = `Score ${score} · ${T().removed} ${kills}` + (score >= best && score > 0 ? ' · New best!' : '');
@@ -1348,7 +2152,7 @@
     const dt = Math.min(0.05, (now - last) / 1000);
     last = now;
     if (state === 'playing') update(dt);
-    else time += dt;
+    else { time += dt; if (state === 'quiz') tickQuiz(dt); else if (state === 'redeem') tickRedeem(dt); }
     render();
     requestAnimationFrame(frame);
   }

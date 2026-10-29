@@ -41,3 +41,18 @@ following the rules in CLAUDE.md.
 [29] 2026-10-22  radomize the picture with facts at the begining of level 1 and the end of level 2 and put a skip button after ten seconds at the bedining af level 1
 [30] 2026-10-24  Create a text file called prompts.txt and record all prompts I give you in that file. Add a claude md so that in the future all commands given to you are dated and added to that file..
 [31] 2026-10-24  commit and push both file
+[32] 2026-10-27  Make the guy move faster and have a longer shooting range and shooting  speed
+[33] 2026-10-27  Add bonus quetsion every few seconds to add XP or more time. Raise the threshold of points needed to 2500.
+[34] 2026-10-27  make teh questions simpler and rigth before the round starts a little lesson adn title it bonus lesson: questions will be based off of this and have those easy questions about 3-4 times per round. maybe every 20 seconds
+[35] 2026-10-27  make the mini lesson redarding questions that will come up in the game.4
+[36] 2026-10-27  have 3 questions per round no matter how short it is.
+[37] 2026-10-27  make teh questions slightly harder every time you get one right. addd a penalty for if you get a question wrong like losing XP. add an XP display near where teh feul/air bar is. make it big so its easily visible .
+[38] 2026-10-27  Don't display teh questions under the lesson facts
+[39] 2026-10-27  Fix it so if your un outta time you have a chance to reedeem yourself by answering three questions correctly within 12 seconds.
+[40] 2026-10-27  increase number of points to succed to 10000
+[41] 2026-10-27  add more invasive spicies
+[42] 2026-10-27  increase number of facts to 5
+[43] 2026-10-27  add more in
+[44] 2026-10-27  add a bomb
+[45] 2026-10-27  add more invasive species
+[46] 2026-10-27  change meadow defender to garden deffender
